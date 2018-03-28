@@ -1,51 +1,62 @@
-from peewee import Model
-import json
+from .json_model import JSONModel
+from ..model2json import ModelEncoder
 
-
-class JSONModel(Model):
-
+class JSONModel_async(JSONModel):
+ 
     @classmethod
-    def load_data(cls, data_json):
-        data = json.loads(data_json, encoding='utf-8')
-        return data
-
-    @classmethod
-    def make_from_json(cls, data_json):
-        data = cls.load_data(data_json)
-        return cls(**data)
+    async def get_async(cls, model, *args, **kwargs):
+        return await cls.manager.get(model, *args, **kwargs)
     
+    @classmethod
+    async def create(cls, **create):
+        return await cls.manager.create(cls, **create)
+
     @classmethod
     async def create_from_json(cls, create_json):
         create = cls.load_data(create_json)
-        return await cls.manager.create(cls, **create)
+        return await cls.create(cls, **create)
     
     @classmethod
-    async def update_from_json(cls, update_json):
-        update = cls.load_data(update_json)
-        return cls.update(**data)
+    async def get(cls, *query, **kwargs):
+        sq = cls.select().naive()
+        if query:
+            sq = sq.where(*query)
+        if kwargs:
+            sq = sq.filter(**kwargs)
+        try:
+            result = await cls.manager.execute(query)
+            return list(result)[0]
+        except IndexError:
+            raise model.DoesNotExist
     
     @classmethod
-    def insert_from_json(cls, insert_json):
-        insert = cls.load_data(insert_json)
-        return cls.insert(insert)
+    async def get_to_json(cls, *query, **kwargs):
+        result = await cls.get(cls, *query, **kwargs)
+        return cls.dump_json(result)
     
     @classmethod
-    def insert_many_from_json(cls, rows_json, fields=None):
-        rows = cls.load_data(rows_json)
-        return cls.insert_many(rows, fields)
+    async def get_select(cls, *query, single=False):
+        sq = cls.select().naive()
+        if query:
+            sq = sq.where(*query)
+        if kwargs:
+            sq = sq.filter(**kwargs)
+        try:
+            result = await cls.manager.execute(query)
+            return list(result)
+        except IndexError:
+            raise model.DoesNotExist
     
     @classmethod
-    def replace_from_json(cls, insert_json):
-        insert = cls.load_data(insert_json)
-        return cls.replace(insert)
+    async def get_select_to_json(cls, *query, single=False):
+        result = await cls.get_select(*query, single=single)
+        return ModelEncoder.encode(result)
     
-    @classmethod
-    def replace_many_from_json(cls, rows_json, fields=None):
-        rows = cls.load_data(rows_json)
-        return cls.replace_many(rows, fields)
+    # @classmethod
+    # async def update(cls, **update_data):
+    #     return await cls.manager.update(cls.make(**update_data))
 
-    def get_json(self):
-        return json.dumps(self._data)
-
-    def __str__(self):
-        return self.get_json()
+    # @classmethod
+    # async def update_from_json(cls, update_json):
+    #     update_data = cls.load_data(update_json)
+    #     return cls.update(**update_data)

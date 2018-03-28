@@ -1,13 +1,13 @@
 from peewee import *
-from .json_model_async import JSONModel
+from .json_model_async import JSONModel_async
 from ..config import config
 import peewee_async
 
-class MyModel(JSONModel):
+class MyModel(JSONModel_async):
     class Meta:
-        database = config.database
+        database = config.pool_async
 
-    manager = peewee_async.Manager(config.database)
+    manager = peewee_async.Manager(config.pool_async)
 
 
 class Answer(MyModel):
