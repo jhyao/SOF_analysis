@@ -1,6 +1,8 @@
 from peewee import Model, SelectQuery
+import peewee
 import json
 from packaging import version
+from ..model2json import ModelEncoder
 
 
 class JSONModel(Model):
@@ -16,15 +18,10 @@ class JSONModel(Model):
         Parameters: data - list, dict, instance, instance list
         Return type: json string
         """
-        if isinstance(data, cls):
-            return data.get_json()
-        if isinstance(data, list):
-            result = []
-
-        return json.dumps(data, ensure_ascii=False)
+        return ModelEncoder(ensure_ascii=False).encode(data)
 
     @classmethod
-    def make(cls, data):
+    def make(cls, **data):
         return cls(**data)
 
     @classmethod
@@ -40,12 +37,12 @@ class JSONModel(Model):
     @classmethod
     def update_from_json(cls, update_json):
         update = cls.load_data(update_json)
-        return cls.update(**data)
+        return cls.update(**update)
     
     @classmethod
     def insert_from_json(cls, insert_json):
         insert = cls.load_data(insert_json)
-        return cls.insert(insert)
+        return cls.insert(**insert)
     
     @classmethod
     def insert_many_from_json(cls, rows_json, fields=None):
@@ -66,9 +63,29 @@ class JSONModel(Model):
     
     @classmethod
     def get_or_create_from_json(defaults_json=None, **kwargs):
-        # avaliable on 3.0
         defaults = cls.load_data(defaults_json)
         return cls.get_or_create(defaults, **kwargs)
+    
+    @classmethod
+    def get_to_json(cls, *query, **kwargs):
+        return ModelEncoder(ensure_ascii=False).encode(cls.get(*query, **kwargs))
+    
+    @classmethod
+    def get_all(cls, *query, **kwargs):
+        sq = cls.select().naive()
+        if query:
+            sq = sq.where(*query)
+        if kwargs:
+            sq = sq.filter(**kwargs)
+        try:
+            return list(sq)
+        except IndexError:
+            return []
+    
+    @classmethod
+    def get_all_to_json(cls, *query, **kwargs):
+        result = cls.get_all(*query, **kwargs)
+        return ModelEncoder(ensure_ascii=False).encode(result)
 
     @classmethod
     def get_select(cls, query, single=False):
@@ -77,26 +94,12 @@ class JSONModel(Model):
         if single:
             return query.get()
         else:
-            results = []
-            for result in query:
-                results.append(result)
-            return results
+            return list(query)
     
     @classmethod
     def get_select_to_json(cls, query, single=False):
-        if not isinstance(query, SelectQuery):
-            return None
-        if single:
-            try:
-                obj = query.get()
-                return cls.dump_json(obj.get_data())
-            except cls.DoesNotExist:
-                return None
-        else:
-            results = []
-            for result in query:
-                results.append(result.get_data())
-            return cls.dump_json(results)
+        result = cls.get_select(query, single)
+        return ModelEncoder(ensure_ascii=False).encode(result)
 
     def get_data(self):
         if version.parse(peewee.__version__) > version.parse('2.10.2'):
@@ -105,7 +108,7 @@ class JSONModel(Model):
             return self._data
     
     def get_json(self):
-        return cls.dump_json(self.get_data())
+        return ModelEncoder(ensure_ascii=False).encode(self)
 
     def __str__(self):
         return self.get_json()

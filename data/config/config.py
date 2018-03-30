@@ -9,6 +9,7 @@ db = {
     'passwd': 'password',
     'database': 'database',
     'max_connections': 10,
+    'charset': 'utf8'
 }
 
 
@@ -21,14 +22,16 @@ finally:
         host=db.get('host'),
         port=db.get('port', 3306),
         user=db.get('user'),
-        passwd=db.get('passwd')
+        passwd=db.get('passwd'),
+        charset=db.get('charset')
     )
     database_async = peewee_async.MySQLDatabase(
         db.get('database'), 
         host=db.get('host'),
         port=db.get('port', 3306),
         user=db.get('user'),
-        password=db.get('passwd')
+        password=db.get('passwd'),
+        charset=db.get('charset')
     )
     pool = PooledMySQLDatabase(
         db.get('database'), 
