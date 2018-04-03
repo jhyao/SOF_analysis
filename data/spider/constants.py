@@ -4,6 +4,12 @@ class Sort:
     CREATION = 'creation'
     NAME = 'name'
     MODIFIED = 'modified'
+    ACTIVITY = 'activity'
+    VOTES = 'votes'
+    HOT = 'hot'
+    WEEK = 'week'
+    MONTH = 'month'
+    POPULAR = 'popular'
 
 class Order:
     DESC = 'desc'

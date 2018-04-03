@@ -38,7 +38,7 @@ class TestApiSpider(unittest.TestCase):
     
     def test_get_user_ids_wrong_ids(self):
         self.assertRaises(DataError, UsersByIdsApi(pagesize=10).get, ids='sdfsdf')
-
+    
 
 
 if __name__ == '__main__':

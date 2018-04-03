@@ -38,11 +38,11 @@ class ApiSpider(object):
         return params
     
     @classmethod
-    def get_url(cls, url_pattern, ids=None):
+    def get_url(cls, url_pattern, keys=None):
         '''
-        Params url_pattern: python string format, url_pattern.format(ids=ids)
+        Params url_pattern: python string format, url_pattern.format(keys=keys)
         Example:
-            cls.get_url('users/{ids}/answers', ids='123;12312')
+            cls.get_url('users/{keys}/answers', keys='123;12312')
             return '.....'/users/123;12312/answers
         '''
         url = cls.api_url
@@ -50,12 +50,12 @@ class ApiSpider(object):
             return url
         
         try:
-            if ids:
-                path = url_pattern.format(ids=cls.format_ids(ids))
+            if keys:
+                path = url_pattern.format(keys=cls.format_keys(keys))
             else:
                 path = url_pattern.format()
         except KeyError:
-            raise IdsError('url pattern need ids')
+            raise KeysError('url pattern need keys')
         
         if cls.api_url[-1] == '/':
             url += path
@@ -64,21 +64,21 @@ class ApiSpider(object):
         return url
     
     @staticmethod
-    def format_ids(ids):
+    def format_keys(keys):
         '''
-        format ids like '123;12312;234324'
+        format keys like '123;12312;234324'
         accept input: list of str, list of int, str aplit with ';', single int id
         '''
-        if not ids:
+        if not keys:
             return None
-        if isinstance(ids, list) and len(ids) > 0:
-            return ';'.join([str(item) for item in ids])
-        elif isinstance(ids, str):
-            return ';'.join([item.strip() for item in ids.split(';')])
-        elif isinstance(ids, int):
-            return str(ids)
+        if isinstance(keys, list) and len(keys) > 0:
+            return ';'.join([str(item) for item in keys])
+        elif isinstance(keys, str):
+            return ';'.join([item.strip() for item in keys.split(';')])
+        elif isinstance(keys, int):
+            return str(keys)
         else:
-            raise IdsError('wrong ids format')
+            raise KeysError('wrong keys format')
     
     @staticmethod
     def page_add(params):
@@ -91,11 +91,11 @@ class ApiSpider(object):
         self.params.update(**kwargs)
         self.fix_params(self.params)
 
-    def get(self, ids=None, **kwargs):
+    def get(self, keys=None, **kwargs):
         '''
         get one page data, use params set in constructor, can change them temporarily through kwargs
         '''
-        url = self.get_url(self.url_pattern, ids)
+        url = self.get_url(self.url_pattern, keys)
         params = dict(self.params)
         params.update(kwargs)
         params = self.fix_params(params)
@@ -106,12 +106,12 @@ class ApiSpider(object):
             data = resp.json()
             return self.data_transfer(data)
 
-    def get_pages(self, ids=None, max_pages=0, **kwargs):
+    def get_pages(self, keys=None, max_pages=0, **kwargs):
         '''
         generator for get data of pages
         max_pages: default 0 to get all pages
         '''
-        url = self.get_url(self.url_pattern, ids)
+        url = self.get_url(self.url_pattern, keys)
         params = dict(self.params)
         params.update(kwargs)
         params = self.fix_params(params)
@@ -151,16 +151,3 @@ class ApiSpider(object):
                 self.session.close()
         finally:
             self.session = None
-
-
-class UsersApi(ApiSpider):
-    url_pattern = 'users'
-
-    def item_transfer(self, item):
-        badges = item.pop('badge_counts')
-        item['badge_bronze'] = badges['bronze']
-        item['badge_silver'] = badges['silver']
-        item['badge_gold'] = badges['gold']
-
-class UsersByIdsApi(UserApi):
-    url_pattern = 'users/{ids}'
