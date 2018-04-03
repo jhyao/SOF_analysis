@@ -1,7 +1,7 @@
 from peewee import *
 import json
 
-db = MySQLDatabase("sof_basic", host="localhost", user='root', passwd="LOVEyjh201697")
+db = MySQLDatabase("sof_basic", host="localhost", user='root', passwd="passwd")
 
 class MySQLModel(Model):
     class Meta:

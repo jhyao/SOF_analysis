@@ -155,6 +155,23 @@ class TestJSONModel(unittest.TestCase):
             self.assertEqual('test1', objlist[0].get('name'))
             self.assertEqual('test2', objlist[1].get('name'))
         self.loop.run_until_complete(inner())
+    
+    def test_save_create(self):
+        async def inner():
+            obj = Test.make(id=3, name='test3')
+            await obj.save(force_insert=True)
+            obj_new = await Test.get(id=3)
+            self.assertEqual('test3', obj_new.name)
+        self.loop.run_until_complete(inner())
+    
+    def test_save_update(self):
+        async def inner():
+            obj = await Test.get(id=2)
+            obj.name = 'test2_new'
+            await obj.save()
+            obj_new = await Test.get(id=2)
+            self.assertEqual('test2_new', obj_new.name)
+        self.loop.run_until_complete(inner())
 
 if __name__ == '__main__':
     unittest.main()
