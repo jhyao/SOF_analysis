@@ -4,6 +4,7 @@ import asyncio
 import requests
 from . import config
 import logging
+from .api_error import *
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ class ApiSpider(object):
         for key in cls.required:
             if key not in params:
                 if cls.all_params.get(key, None) is None:
-                    raise Exception('param ' + key + ' is required')
+                    raise ParamsError('param ' + key + ' is required')
                 else:
                     params.setdefault(key, cls.all_params.get(key))
         return params
@@ -49,9 +50,12 @@ class ApiSpider(object):
             return url
         
         try:
-            path = url_pattern.format(ids=cls.format_ids(ids))
-        except KeyError as e:
-            raise Exception('url pattern need param ' + e.args)
+            if ids:
+                path = url_pattern.format(ids=cls.format_ids(ids))
+            else:
+                path = url_pattern.format()
+        except KeyError:
+            raise IdsError('url pattern need ids')
         
         if cls.api_url[-1] == '/':
             url += path
@@ -66,7 +70,7 @@ class ApiSpider(object):
         accept input: list of str, list of int, str aplit with ';', single int id
         '''
         if not ids:
-            return ''
+            return None
         if isinstance(ids, list) and len(ids) > 0:
             return ';'.join([str(item) for item in ids])
         elif isinstance(ids, str):
@@ -74,7 +78,7 @@ class ApiSpider(object):
         elif isinstance(ids, int):
             return str(ids)
         else:
-            raise Exception('wrong ids format')
+            raise IdsError('wrong ids format')
     
     @staticmethod
     def page_add(params):
@@ -100,7 +104,7 @@ class ApiSpider(object):
         with self.session.get(url, params=params) as resp:
             logger.info('GET ' + resp.url)
             data = resp.json()
-            return data.get(RespKey.ITEMS, [])
+            return self.data_transfer(data)
 
     def get_pages(self, ids=None, max_pages=0, **kwargs):
         '''
@@ -122,16 +126,41 @@ class ApiSpider(object):
                 logger.info('GET ' + resp.url)
                 data = resp.json()
                 page += 1
-                yield data.get(RespKey.ITEMS, [])
+                yield self.data_transfer(data)
+    
+    def data_transfer(self, data):
+        '''
+        overwrite this method to handle data
+        '''
+        if 'error_id' in data:
+            raise DataError('ERROR{error_id}: {error_name}({error_message})'.format(**data))
+        results = data.get(RespKey.ITEMS, [])
+        for item in results:
+            self.item_transfer(item)
+        return results
+    
+    def item_transfer(self, item):
+        '''
+        overwrite this method to handle item
+        '''
+        pass
     
     def __del__(self):
         try:
-            self.session.close()
+            if self.session:
+                self.session.close()
         finally:
             self.session = None
 
 
-class UserApider(ApiSpider):
+class UsersApi(ApiSpider):
     url_pattern = 'users'
 
-    def get
+    def item_transfer(self, item):
+        badges = item.pop('badge_counts')
+        item['badge_bronze'] = badges['bronze']
+        item['badge_silver'] = badges['silver']
+        item['badge_gold'] = badges['gold']
+
+class UsersByIdsApi(UserApi):
+    url_pattern = 'users/{ids}'
