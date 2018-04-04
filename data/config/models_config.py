@@ -14,8 +14,8 @@ db = {
 
 
 try:
-    from . import config_my
-    db.update(**config_my.db)
+    from . import models_config_my
+    db.update(**models_config_my.db)
 finally:
     database = peewee.MySQLDatabase(
         db.get('database'), 

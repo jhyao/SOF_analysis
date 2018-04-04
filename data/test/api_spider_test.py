@@ -1,5 +1,5 @@
 import unittest
-from ..spider.api_spider import *
+from ..spider.sof_spider import *
 import itertools
 from ..spider.api_error import *
 
@@ -28,16 +28,16 @@ class TestApiSpider(unittest.TestCase):
         self.assertTrue('badge_gold' in user)
     
     def test_get_user_ids(self):
-        data = UsersByIdsApi(pagesize=10).get(ids=[123])
+        data = UsersByIdsApi(pagesize=10).get(user_ids=[123])
         self.assertEqual(1, len(data))
         user = data[0]
         self.assertEqual(123, user['user_id'])
     
     def test_get_user_ids_no_ids(self):
-        self.assertRaises(IdsError, UsersByIdsApi(pagesize=10).get)
+        self.assertRaises(UrlKeysError, UsersByIdsApi(pagesize=10).get)
     
     def test_get_user_ids_wrong_ids(self):
-        self.assertRaises(DataError, UsersByIdsApi(pagesize=10).get, ids='sdfsdf')
+        self.assertRaises(DataError, UsersByIdsApi(pagesize=10).get, user_ids='sdfsdf')
     
 
 

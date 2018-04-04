@@ -1,10 +1,10 @@
 class ApiError(Exception):
     pass
 
-class ParamsError(ApiError):
+class UrlParamsError(ApiError):
     pass
 
-class IdsError(ApiError):
+class UrlKeysError(ApiError):
     pass
 
 class DataError(ApiError):

@@ -10,6 +10,9 @@ class Sort:
     WEEK = 'week'
     MONTH = 'month'
     POPULAR = 'popular'
+    RANK = 'rank'
+    RELEVANCE = 'relevance'
+    NAME = 'name'
 
 class Order:
     DESC = 'desc'
@@ -25,6 +28,11 @@ class Param:
     MAX = 'max'
     SORT = 'sort'
     SITE = 'site'
+    TAGGED = 'tagged'
+    NOTAGGED = 'notagged'
+    TITLE = 'title'
+    INTITLE = 'intitle'
+    INNAME = 'inname'
 
 class RespKey:
     ERROR_ID = "error_id"

@@ -1,6 +1,6 @@
 from peewee import *
 from .json_model_async import JSONModel_async
-from ..config import config
+from ..config import models_config as config
 import peewee_async
 
 class MyModel(JSONModel_async):

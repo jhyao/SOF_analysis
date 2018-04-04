@@ -1,9 +1,12 @@
-import unittest
-from peewee import *
-from ..models.json_model import JSONModel
-from ..config import config
 import datetime
 import json
+import unittest
+
+from peewee import *
+
+from ..config import models_config as config
+from ..models.json_model import JSONModel
+
 
 class Test(JSONModel):
     class Meta:

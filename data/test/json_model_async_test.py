@@ -1,11 +1,14 @@
-import unittest
-from peewee import *
-from ..models.json_model_async import JSONModel_async
-from ..config import config
+import asyncio
 import datetime
 import json
-import asyncio
+import unittest
+
 import peewee_async
+from peewee import *
+
+from ..config import models_config as config
+from ..models.json_model_async import JSONModel_async
+
 
 class Test(JSONModel_async):
     class Meta:

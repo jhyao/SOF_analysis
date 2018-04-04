@@ -1,10 +1,12 @@
-import aiohttp
-from .constants import *
 import asyncio
-import requests
-from . import config
 import logging
+
+import aiohttp
+import requests
+
+from ..config import spider_config
 from .api_error import *
+from ..config.spider_constants import *
 
 logger = logging.getLogger(__name__)
 
@@ -12,10 +14,9 @@ class ApiSpider(object):
     session = None
     session_async = None
 
-    all_params = config.all_params_default
-    required = config.required_default
-    api_url = config.api_url
-    url_pattern = ''
+    config = spider_config.DefaultConfig
+
+    api_url = spider_config.api_url
 
     def __init__(self, **kwargs):
         self.params = self.fix_params(kwargs)
@@ -24,21 +25,21 @@ class ApiSpider(object):
     def fix_params(cls, params):
         # delete invaild params
         params = dict(params)
-        if cls.all_params:
+        if cls.config.all_params:
             for key in list(params.keys()):
-                if key not in cls.all_params:
+                if key not in cls.config.all_params:
                     params.pop(key)
         # set default value for required params, or throw exception if have no default in all_params
-        for key in cls.required:
+        for key in cls.config.required:
             if key not in params:
-                if cls.all_params.get(key, None) is None:
-                    raise ParamsError('param ' + key + ' is required')
+                if cls.config.all_params.get(key, None) is None:
+                    raise UrlParamsError('param ' + key + ' is required')
                 else:
-                    params.setdefault(key, cls.all_params.get(key))
+                    params.setdefault(key, cls.config.all_params.get(key))
         return params
     
     @classmethod
-    def get_url(cls, url_pattern, keys=None):
+    def get_url(cls, url_pattern, keys):
         '''
         Params url_pattern: python string format, url_pattern.format(keys=keys)
         Example:
@@ -48,14 +49,21 @@ class ApiSpider(object):
         url = cls.api_url
         if not url_pattern:
             return url
-        
+
+        for key in list(keys.keys()):
+            foramt_key = cls.format_keys(keys[key])
+            if foramt_key:
+                keys[key] = foramt_key
+            else:
+                keys.pop(key)
+
         try:
             if keys:
-                path = url_pattern.format(keys=cls.format_keys(keys))
+                path = url_pattern.format(**keys)
             else:
                 path = url_pattern.format()
         except KeyError:
-            raise KeysError('url pattern need keys')
+            raise UrlKeysError('url pattern ' + url_pattern + ' need keys')
         
         if cls.api_url[-1] == '/':
             url += path
@@ -91,11 +99,17 @@ class ApiSpider(object):
         self.params.update(**kwargs)
         self.fix_params(self.params)
 
-    def get(self, keys=None, **kwargs):
+    def get(self, **kwargs):
         '''
         get one page data, use params set in constructor, can change them temporarily through kwargs
         '''
-        url = self.get_url(self.url_pattern, keys)
+        keys = {}
+        try:
+            for key in self.config.keys_required:
+                keys[key] = kwargs.pop(key)
+        except KeyError:
+            raise UrlKeysError('url pattern ' + self.config.url_pattern + ' need keys')
+        url = self.get_url(self.config.url_pattern, keys)
         params = dict(self.params)
         params.update(kwargs)
         params = self.fix_params(params)
@@ -111,7 +125,13 @@ class ApiSpider(object):
         generator for get data of pages
         max_pages: default 0 to get all pages
         '''
-        url = self.get_url(self.url_pattern, keys)
+        keys = {}
+        try:
+            for key in self.config.keys_required:
+                keys[key] = kwargs.pop(key)
+        except KeyError:
+            raise UrlKeysError('url pattern ' + url_pattern + ' need keys')
+        url = self.get_url(self.config.url_pattern, keys)
         params = dict(self.params)
         params.update(kwargs)
         params = self.fix_params(params)
