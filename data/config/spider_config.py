@@ -88,6 +88,31 @@ class UsersConfig(DefaultConfig):
     }
     required = [Param.ORDER, Param.SORT, Param.SITE]
     url_pattern = UrlPattern.USERS
+    fields = {
+        "badge_bronze": 0,
+        "badge_silver": 0,
+        "badge_gold": 0,
+        "account_id": None,
+        "is_employee": False,
+        "last_modified_date": None,
+        "last_access_date": None,
+        "age": None,
+        "reputation_change_year": 0,
+        "reputation_change_quarter": 0,
+        "reputation_change_month": 0,
+        "reputation_change_week": 0,
+        "reputation_change_day": 0,
+        "reputation": 0,
+        "creation_date": None,
+        "user_type": None,
+        "user_id": None,
+        "accept_rate": None,
+        "location": None,
+        "website_url": None,
+        "link": None,
+        "profile_image": None,
+        "display_name": None
+    }
 
 
 class UsersByIdsConfig(UsersConfig):

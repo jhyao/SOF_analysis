@@ -10,10 +10,9 @@ from ..config.spider_constants import *
 
 logger = logging.getLogger(__name__)
 
-class ApiSpider(object):
-    session = None
-    session_async = None
 
+class ApiSpider(object):
+    
     config = spider_config.DefaultConfig
 
     api_url = spider_config.api_url
@@ -25,17 +24,14 @@ class ApiSpider(object):
     def fix_params(cls, params):
         # delete invaild params
         params = dict(params)
-        if cls.config.all_params:
-            for key in list(params.keys()):
-                if key not in cls.config.all_params:
-                    params.pop(key)
-        # set default value for required params, or throw exception if have no default in all_params
+        for key in set(params.keys()) - set(cls.config.all_params.keys()):
+            params.pop(key)
+        for key in set(cls.config.all_params.keys()) - set(params.keys()):
+            if cls.config.all_params.get(key) is not None:
+                params[key] = cls.config.all_params.get(key)
         for key in cls.config.required:
-            if key not in params:
-                if cls.config.all_params.get(key, None) is None:
-                    raise UrlParamsError('param ' + key + ' is required')
-                else:
-                    params.setdefault(key, cls.config.all_params.get(key))
+            if params.get(key, None) is None:
+                raise UrlParamsError('param ' + key + ' is required')
         return params
     
     @classmethod
@@ -95,14 +91,7 @@ class ApiSpider(object):
         else:
             params[Param.PAGE] += 1
     
-    def update_params(self, **kwargs):
-        self.params.update(**kwargs)
-        self.fix_params(self.params)
-
-    def get(self, **kwargs):
-        '''
-        get one page data, use params set in constructor, can change them temporarily through kwargs
-        '''
+    def __url_and_params(self, **kwargs):
         keys = {}
         try:
             for key in self.config.keys_required:
@@ -113,40 +102,69 @@ class ApiSpider(object):
         params = dict(self.params)
         params.update(kwargs)
         params = self.fix_params(params)
-        if not self.session:
-            self.session = requests.Session()
-        with self.session.get(url, params=params) as resp:
-            logger.info('GET ' + resp.url)
-            data = resp.json()
-            return self.data_transfer(data)
+        return url, params
+    
+    def update_params(self, **kwargs):
+        self.params.update(**kwargs)
+        self.fix_params(self.params)
+
+    def get(self, **kwargs):
+        '''
+        get one page data, use params set in constructor, can change them temporarily through kwargs
+        '''
+        (url, params) = self.__url_and_params(**kwargs)
+        with requests.Session() as session:
+            with session.get(url, params=params) as resp:
+                logger.info('GET ' + str(resp.url))
+                data = resp.json()
+                return self.data_transfer(data)
+    
+    async def get_async(self, **kwargs):
+        '''
+        get one page data, use params set in constructor, can change them temporarily through kwargs
+        '''
+        (url, params) = self.__url_and_params(**kwargs)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params) as resp:
+                logger.info('GET ' + str(resp.url))
+                data = await resp.json()
+                return self.data_transfer(data)
 
     def get_pages(self, keys=None, max_pages=0, **kwargs):
         '''
         generator for get data of pages
         max_pages: default 0 to get all pages
         '''
-        keys = {}
-        try:
-            for key in self.config.keys_required:
-                keys[key] = kwargs.pop(key)
-        except KeyError:
-            raise UrlKeysError('url pattern ' + url_pattern + ' need keys')
-        url = self.get_url(self.config.url_pattern, keys)
-        params = dict(self.params)
-        params.update(kwargs)
-        params = self.fix_params(params)
-        if not self.session:
-            self.session = requests.Session()
+        (url, params) = self.__url_and_params(**kwargs)
         page = 0
-        max_pages = 0 if max_pages < 0 else max_pages   
-        data = {}  
-        while (page==0 or data.get(RespKey.HAS_MORE, False)) and (max_pages == 0 or page < max_pages):
-            self.page_add(params)
-            with self.session.get(url, params=params) as resp:
-                logger.info('GET ' + resp.url)
-                data = resp.json()
+        max_pages = 0 if max_pages < 0 else max_pages
+        data = {}
+        with requests.Session() as session:
+            while (page==0 or data.get(RespKey.HAS_MORE, False)) and (max_pages == 0 or page < max_pages):
+                with session.get(url, params=params) as resp:
+                    logger.info('GET ' + str(resp.url))
+                    data = resp.json()
+                    yield self.data_transfer(data)
                 page += 1
-                yield self.data_transfer(data)
+                self.page_add(params)
+    
+    async def get_pages_async(self, keys=None, max_pages=0, **kwargs):
+        '''
+        generator for get data of pages
+        max_pages: default 0 to get all pages
+        '''
+        (url, params) = self.__url_and_params(**kwargs)
+        page = 0
+        max_pages = 0 if max_pages < 0 else max_pages
+        data = {}
+        with aiohttp.ClientSession() as session:
+            while (page==0 or data.get(RespKey.HAS_MORE, False)) and (max_pages == 0 or page < max_pages):
+                async with session.get(url, params=params) as resp:
+                    logger.info(f'GET {resp.url}')
+                    data = await resp.json()
+                    yield self.data_transfer(data)
+                page += 1
+                self.page_add(params)
     
     def data_transfer(self, data):
         '''
@@ -164,10 +182,3 @@ class ApiSpider(object):
         overwrite this method to handle item
         '''
         pass
-    
-    def __del__(self):
-        try:
-            if self.session:
-                self.session.close()
-        finally:
-            self.session = None

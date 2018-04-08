@@ -1,5 +1,8 @@
 from ..config import spider_config
 from .api_spider import ApiSpider
+import logging
+
+logger = logging.getLogger(__name__)
 
 class UsersApi(ApiSpider):
     config = spider_config.UsersConfig
@@ -10,6 +13,10 @@ class UsersApi(ApiSpider):
             item['badge_bronze'] = badges['bronze']
             item['badge_silver'] = badges['silver']
             item['badge_gold'] = badges['gold']
+        for key in set(self.config.fields.keys()) - set(item.keys()):
+            item[key] = self.config.fields.get(key, None)
+        for key in set(item.keys()) - set(self.config.fields.keys()):
+            item.pop(key)
 
 
 class UsersByIdsApi(UsersApi):

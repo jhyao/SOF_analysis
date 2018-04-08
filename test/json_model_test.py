@@ -4,13 +4,15 @@ import unittest
 
 from peewee import *
 
-from ..config import models_config as config
-from ..models.json_model import JSONModel
+from data.config.config import Config
+from data.models.json_model import JSONModel
+
+config = Config('root')
 
 
 class Test(JSONModel):
     class Meta:
-        database = config.database
+        database = config.pool
     
     id = IntegerField(primary_key=True)
     name = CharField()

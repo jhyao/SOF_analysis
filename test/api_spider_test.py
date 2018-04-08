@@ -1,7 +1,7 @@
 import unittest
-from ..spider.sof_spider import *
+from data.spider.sof_spider import *
 import itertools
-from ..spider.api_error import *
+from data.spider.api_error import *
 
 class TestApiSpider(unittest.TestCase):
     def test_get(self):

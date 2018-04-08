@@ -1,9 +1,11 @@
 from .json_model import JSONModel
 from ..model2json import ModelEncoder
-import asyncio
 from peewee import SelectQuery
 
+
 class JSONModel_async(JSONModel):
+
+    manager = None
 
     @classmethod
     async def create(cls, **create):
