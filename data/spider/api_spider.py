@@ -19,6 +19,8 @@ class ApiSpider(object):
 
     def __init__(self, **kwargs):
         self.params = self.fix_params(kwargs)
+        self.session = None
+        self.session_async = None
     
     @classmethod
     def fix_params(cls, params):
@@ -82,7 +84,7 @@ class ApiSpider(object):
         elif isinstance(keys, int):
             return str(keys)
         else:
-            raise KeysError('wrong keys format')
+            raise UrlKeysError('wrong keys format')
     
     @staticmethod
     def page_add(params):
@@ -113,22 +115,29 @@ class ApiSpider(object):
         get one page data, use params set in constructor, can change them temporarily through kwargs
         '''
         (url, params) = self.__url_and_params(**kwargs)
-        with requests.Session() as session:
-            with session.get(url, params=params) as resp:
-                logger.info('GET ' + str(resp.url))
-                data = resp.json()
-                return self.data_transfer(data)
+        if not self.session:
+            headers = dict(spider_config.headers)
+            headers['Referer'] = self.config.referer
+            self.session = requests.Session()
+            self.session.headers = headers
+        with self.session.get(url, params=params) as resp:
+            logger.info('GET ' + str(resp.url))
+            data = resp.json()
+            return self.data_transfer(data)
     
     async def get_async(self, **kwargs):
         '''
         get one page data, use params set in constructor, can change them temporarily through kwargs
         '''
         (url, params) = self.__url_and_params(**kwargs)
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, params=params) as resp:
-                logger.info('GET ' + str(resp.url))
-                data = await resp.json()
-                return self.data_transfer(data)
+        if not self.session_async:
+            headers = dict(spider_config.headers)
+            headers['referer'] = self.config.referer
+            self.session_async = aiohttp.ClientSession(headers=headers)
+        async with self.session_async.get(url, params=params) as resp:
+            logger.info('GET ' + str(resp.url))
+            data = await resp.json()
+            return self.data_transfer(data)
 
     def get_pages(self, keys=None, max_pages=0, **kwargs):
         '''
@@ -139,14 +148,23 @@ class ApiSpider(object):
         page = 0
         max_pages = 0 if max_pages < 0 else max_pages
         data = {}
-        with requests.Session() as session:
-            while (page==0 or data.get(RespKey.HAS_MORE, False)) and (max_pages == 0 or page < max_pages):
-                with session.get(url, params=params) as resp:
-                    logger.info('GET ' + str(resp.url))
+        if not self.session:
+            headers = dict(spider_config.headers)
+            headers['Referer'] = self.config.referer
+            self.session = requests.Session()
+            self.session.headers = headers
+        while (page==0 or data.get(RespKey.HAS_MORE, False)) and (max_pages == 0 or page < max_pages):
+            logger.info(f'Getting page {params["page"]}')
+            try:
+                with self.session.get(url, params=params) as resp:
                     data = resp.json()
+                    logger.info(f'GET page {resp.url}')
                     yield self.data_transfer(data)
-                page += 1
-                self.page_add(params)
+            except Exception as e:
+                logger.error(f'get page error, {e.__class__.__name__}:{e.args}')
+                return
+            page += 1
+            self.page_add(params)
     
     async def get_pages_async(self, keys=None, max_pages=0, **kwargs):
         '''
@@ -157,14 +175,17 @@ class ApiSpider(object):
         page = 0
         max_pages = 0 if max_pages < 0 else max_pages
         data = {}
-        with aiohttp.ClientSession() as session:
-            while (page==0 or data.get(RespKey.HAS_MORE, False)) and (max_pages == 0 or page < max_pages):
-                async with session.get(url, params=params) as resp:
-                    logger.info(f'GET {resp.url}')
-                    data = await resp.json()
-                    yield self.data_transfer(data)
-                page += 1
-                self.page_add(params)
+        if not self.session_async:
+            headers = dict(spider_config.headers)
+            headers['referer'] = self.config.referer
+            self.session_async = aiohttp.ClientSession(headers=headers)
+        while (page == 0 or data.get(RespKey.HAS_MORE, False)) and (max_pages == 0 or page < max_pages):
+            async with self.session_async.get(url, params=params) as resp:
+                logger.info(f'GET {resp.url}')
+                data = await resp.json()
+                yield self.data_transfer(data)
+            page += 1
+            self.page_add(params)
     
     def data_transfer(self, data):
         '''
@@ -175,6 +196,7 @@ class ApiSpider(object):
         results = data.get(RespKey.ITEMS, [])
         for item in results:
             self.item_transfer(item)
+            self.item_fix(item)
         return results
     
     def item_transfer(self, item):
@@ -182,3 +204,25 @@ class ApiSpider(object):
         overwrite this method to handle item
         '''
         pass
+
+    def item_fix(self, item):
+        '''
+        set fields in config,
+        delete keys in item but not in fields, add keys in fields but not in item if has default in fields
+        '''
+        if not self.config.fields:
+            return
+        for key in set(self.config.fields.keys()) - set(item.keys()):
+            item[key] = self.config.fields.get(key, None)
+        for key in set(item.keys()) - set(self.config.fields.keys()):
+            item.pop(key)
+
+    def __del__(self):
+        try:
+            if self.session:
+                self.session.close()
+            if self.session_async and not self.session_async.closed:
+                self.session_async.close()
+        except:
+            pass
+

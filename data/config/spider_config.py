@@ -14,6 +14,16 @@ all_params_default = {
 required_default = [Param.ORDER, Param.SORT, Param.SITE]
 api_url = 'https://api.stackexchange.com/2.2/'
 
+headers = {
+    'Accept': '*/*',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Accept-Language': 'en,zh-CN;q=0.9,zh;q=0.8',
+    'Connection': 'keep-alive',
+    'Referer': 'https://api.stackexchange.com/docs/tags',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36',
+    'X-Requested-With': 'XMLHttpRequest'
+}
+
 class UrlPattern(object):
     USERS = 'users'
     USERS_BY_IDS = 'users/{user_ids}'
@@ -53,6 +63,7 @@ class UrlPattern(object):
 
 class DefaultConfig(object):
     all_params = {
+        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
         Param.PAGESIZE: 50,
         Param.FROMDATE: None,
@@ -66,6 +77,8 @@ class DefaultConfig(object):
     required = [Param.ORDER, Param.SITE]
     url_pattern = None
     keys_required = []
+    fields = {}
+    referer = 'https://api.stackexchange.com/docs/'
 
 
 class UsersConfig(DefaultConfig):
@@ -76,6 +89,7 @@ class UsersConfig(DefaultConfig):
         Sort.MODIFIED
     ]
     all_params = {
+        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
         Param.PAGESIZE: 50,
         Param.FROMDATE: None,
@@ -113,6 +127,7 @@ class UsersConfig(DefaultConfig):
         "profile_image": None,
         "display_name": None
     }
+    referer = 'https://api.stackexchange.com/docs/users'
 
 
 class UsersByIdsConfig(UsersConfig):
@@ -127,6 +142,7 @@ class AnswersConfig(DefaultConfig):
         Sort.VOTES
     ]
     all_params = {
+        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
         Param.PAGESIZE: 50,
         Param.FROMDATE: None,
@@ -162,6 +178,7 @@ class CommentsConfig(DefaultConfig):
         Sort.VOTES
     ]
     all_params = {
+        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
         Param.PAGESIZE: 50,
         Param.FROMDATE: None,
@@ -208,6 +225,7 @@ class QuestionsBaseConfig(DefaultConfig):
         Sort.VOTES
     ]
     all_params = {
+        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
         Param.PAGESIZE: 50,
         Param.FROMDATE: None,
@@ -274,6 +292,7 @@ class QuestionsRelatedConfig(QuestionsBaseConfig):
 class QuestionsOfTagsConfig(QuestionsBaseConfig):
     sorts = []
     all_params = {
+        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
         Param.PAGESIZE: 50,
         Param.SITE: 'stackoverflow'
@@ -285,6 +304,7 @@ class QuestionsOfTagsConfig(QuestionsBaseConfig):
 
 class QuestionsFeaturedConfig(QuestionsBaseConfig):
     all_params = {
+        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
         Param.PAGESIZE: 50,
         Param.FROMDATE: None,
@@ -301,6 +321,7 @@ class QuestionsFeaturedConfig(QuestionsBaseConfig):
 
 class QuestionsUnansweredConfig(QuestionsBaseConfig):
     all_params = {
+        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
         Param.PAGESIZE: 50,
         Param.FROMDATE: None,
@@ -323,6 +344,7 @@ class QuestionsSimilarConfig(QuestionsBaseConfig):
         Sort.RELEVANCE # order by "how similar" the questions are, most likely candidate first with a descending order
     ]
     all_params = {
+        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
         Param.PAGESIZE: 50,
         Param.FROMDATE: None,
@@ -347,6 +369,7 @@ class QuestionsSearchConfig(QuestionsBaseConfig):
         Sort.RELEVANCE # order by "how similar" the questions are, most likely candidate first with a descending order
     ]
     all_params = {
+        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
         Param.PAGESIZE: 50,
         Param.FROMDATE: None,
@@ -370,6 +393,7 @@ class TagsConfig(DefaultConfig):
         Sort.NAME
     ]
     all_params = {
+        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
         Param.PAGESIZE: 50,
         Param.FROMDATE: None,
@@ -383,6 +407,7 @@ class TagsConfig(DefaultConfig):
     }
     required = [Param.ORDER, Param.SORT, Param.SITE]
     url_pattern = UrlPattern.TAGS
+    referer = 'https://api.stackexchange.com/docs/tags'
 
 
 class TagsByNamesConfig(DefaultConfig):
