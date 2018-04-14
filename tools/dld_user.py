@@ -1,7 +1,7 @@
 import time
 
-from data.models.sof_models import User, Tag
-from data.spider.sof_spider import UsersApi, TagsApi
+from data.models.sof_models import *
+from data.spider.sof_spider import *
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -49,5 +49,14 @@ def dld_tags(page_from):
                 except Exception as e:
                     logger.warning(e.__class__.__name__ + str(e.args))
 
+
+def dld_questions(**kwargs):
+    for page_data in QuestionsApi(**kwargs).get_pages():
+        if len(page_data) == 0:
+            continue
+        question_tags = [{'question_id': item['question_id'], 'tag': tag} for item in page_data for tag in item.pop('tags', []) ]
+        Question.insert_many_execute(page_data)
+        QuestionTags.insert_many_execute(question_tags)
+
 if __name__ == '__main__':
-    dld_tags(449)
+    dld_questions(page=193, fromdate=1523404800, todate=1523491200)

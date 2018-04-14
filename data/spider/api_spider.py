@@ -3,6 +3,7 @@ import logging
 
 import aiohttp
 import requests
+import json
 
 from ..config import spider_config
 from .api_error import *
@@ -132,10 +133,11 @@ class ApiSpider(object):
         (url, params) = self.__url_and_params(**kwargs)
         if not self.session_async:
             headers = dict(spider_config.headers)
-            headers['referer'] = self.config.referer
+            headers['Referer'] = self.config.referer
             self.session_async = aiohttp.ClientSession(headers=headers)
         async with self.session_async.get(url, params=params) as resp:
             logger.info('GET ' + str(resp.url))
+            logger.debug('resp: ' + await resp.text())
             data = await resp.json()
             return self.data_transfer(data)
 
@@ -192,7 +194,7 @@ class ApiSpider(object):
         overwrite this method to handle data
         '''
         if 'error_id' in data:
-            raise DataError('ERROR{error_id}: {error_name}({error_message})'.format(**data))
+            raise DataError(data)
         results = data.get(RespKey.ITEMS, [])
         for item in results:
             self.item_transfer(item)
@@ -208,7 +210,7 @@ class ApiSpider(object):
     def item_fix(self, item):
         '''
         set fields in config,
-        delete keys in item but not in fields, add keys in fields but not in item if has default in fields
+        delete keys in item but not in fields, add keys in fields but not in item
         '''
         if not self.config.fields:
             return

@@ -1,15 +1,18 @@
 from .spider_constants import *
 
+pagesize = 100
+site = 'stackoverflow'
+
 all_params_default = {
     Param.PAGE: 1,
-    Param.PAGESIZE: 50,
+    Param.PAGESIZE: pagesize,
     Param.FROMDATE: None,
     Param.TODATE: None,
     Param.ORDER: Order.DESC,
     Param.MIN: None,
     Param.MAX: None,
     Param.SORT: Sort.REPUTATION,
-    Param.SITE: 'stackoverflow'
+    Param.SITE: site
 }
 required_default = [Param.ORDER, Param.SORT, Param.SITE]
 api_url = 'https://api.stackexchange.com/2.2/'
@@ -19,7 +22,7 @@ headers = {
     'Accept-Encoding': 'gzip, deflate, br',
     'Accept-Language': 'en,zh-CN;q=0.9,zh;q=0.8',
     'Connection': 'keep-alive',
-    'Referer': 'https://api.stackexchange.com/docs/tags',
+    'Referer': 'https://api.stackexchange.com/docs/',
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36',
     'X-Requested-With': 'XMLHttpRequest'
 }
@@ -65,14 +68,14 @@ class DefaultConfig(object):
     all_params = {
         'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
-        Param.PAGESIZE: 50,
+        Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
         Param.TODATE: None,
         Param.ORDER: Order.DESC,
         Param.MIN: None,
         Param.MAX: None,
         Param.SORT: None,
-        Param.SITE: 'stackoverflow'
+        Param.SITE: site
     }
     required = [Param.ORDER, Param.SITE]
     url_pattern = None
@@ -91,14 +94,14 @@ class UsersConfig(DefaultConfig):
     all_params = {
         'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
-        Param.PAGESIZE: 50,
+        Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
         Param.TODATE: None,
         Param.ORDER: Order.DESC,
         Param.MIN: None,
         Param.MAX: None,
         Param.SORT: Sort.REPUTATION,
-        Param.SITE: 'stackoverflow'
+        Param.SITE: site
     }
     required = [Param.ORDER, Param.SORT, Param.SITE]
     url_pattern = UrlPattern.USERS
@@ -144,14 +147,14 @@ class AnswersConfig(DefaultConfig):
     all_params = {
         'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
-        Param.PAGESIZE: 50,
+        Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
         Param.TODATE: None,
         Param.ORDER: Order.DESC,
         Param.MIN: None,
         Param.MAX: None,
         Param.SORT: Sort.ACTIVITY,
-        Param.SITE: 'stackoverflow'
+        Param.SITE: site
     }
     required = [Param.ORDER, Param.SORT, Param.SITE]
     url_pattern = UrlPattern.ANSWERS
@@ -180,14 +183,14 @@ class CommentsConfig(DefaultConfig):
     all_params = {
         'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
-        Param.PAGESIZE: 50,
+        Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
         Param.TODATE: None,
         Param.ORDER: Order.DESC,
         Param.MIN: None,
         Param.MAX: None,
         Param.SORT: Sort.CREATION,
-        Param.SITE: 'stackoverflow'
+        Param.SITE: site
     }
     required = [Param.ORDER, Param.SORT, Param.SITE]
     url_pattern = UrlPattern.COMMENTS
@@ -227,17 +230,30 @@ class QuestionsBaseConfig(DefaultConfig):
     all_params = {
         'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
-        Param.PAGESIZE: 50,
+        Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
         Param.TODATE: None,
         Param.ORDER: Order.DESC,
         Param.MIN: None,
         Param.MAX: None,
         Param.SORT: Sort.ACTIVITY,
-        Param.SITE: 'stackoverflow'
+        Param.SITE: site
     }
     required = [Param.ORDER, Param.SORT, Param.SITE]
     url_pattern = UrlPattern.QUESTIONS
+    fields = {
+        "tags": [],
+        "owner": None,
+        "is_answered": False,
+        "view_count": None,
+        "answer_count": None,
+        "score": None,
+        "last_activity_date": None,
+        "creation_date": None,
+        "question_id": None,
+        "link": "None",
+        "title": "None"
+    }
 
 
 class QuestionsConfig(QuestionsBaseConfig):
@@ -249,7 +265,21 @@ class QuestionsConfig(QuestionsBaseConfig):
         Sort.WEEK,
         Sort.MONTH
     ]
+    all_params = {
+        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
+        Param.PAGE: 1,
+        Param.PAGESIZE: pagesize,
+        Param.FROMDATE: None,
+        Param.TODATE: None,
+        Param.ORDER: Order.DESC,
+        Param.MIN: None,
+        Param.MAX: None,
+        Param.SORT: Sort.ACTIVITY,
+        Param.SITE: site,
+        Param.TAGGED: None
+    }
     url_pattern = UrlPattern.QUESTIONS
+    referer = 'https://api.stackexchange.com/docs/questions'
 
 
 class QuestionsByIdsConfig(QuestionsBaseConfig):
@@ -294,8 +324,8 @@ class QuestionsOfTagsConfig(QuestionsBaseConfig):
     all_params = {
         'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
-        Param.PAGESIZE: 50,
-        Param.SITE: 'stackoverflow'
+        Param.PAGESIZE: pagesize,
+        Param.SITE: site
     }
     required = []
     url_pattern = UrlPattern.QUESTIONS_OF_TAGS
@@ -306,14 +336,14 @@ class QuestionsFeaturedConfig(QuestionsBaseConfig):
     all_params = {
         'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
-        Param.PAGESIZE: 50,
+        Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
         Param.TODATE: None,
         Param.ORDER: Order.DESC,
         Param.MIN: None,
         Param.MAX: None,
         Param.SORT: None,
-        Param.SITE: 'stackoverflow',
+        Param.SITE: site,
         Param.TAGGED : None
     }
     url_pattern = UrlPattern.QUESTIONS_FEATURED
@@ -323,14 +353,14 @@ class QuestionsUnansweredConfig(QuestionsBaseConfig):
     all_params = {
         'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
-        Param.PAGESIZE: 50,
+        Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
         Param.TODATE: None,
         Param.ORDER: Order.DESC,
         Param.MIN: None,
         Param.MAX: None,
         Param.SORT: None,
-        Param.SITE: 'stackoverflow',
+        Param.SITE: site,
         Param.TAGGED : None
     }
     url_pattern = UrlPattern.QUESTIONS_UNANSWERED
@@ -346,14 +376,14 @@ class QuestionsSimilarConfig(QuestionsBaseConfig):
     all_params = {
         'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
-        Param.PAGESIZE: 50,
+        Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
         Param.TODATE: None,
         Param.ORDER: Order.DESC,
         Param.MIN: None,
         Param.MAX: None,
         Param.SORT: None,
-        Param.SITE: 'stackoverflow',
+        Param.SITE: site,
         Param.TAGGED : None,
         Param.NOTAGGED: None,
         Param.TITLE: None
@@ -371,14 +401,14 @@ class QuestionsSearchConfig(QuestionsBaseConfig):
     all_params = {
         'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
-        Param.PAGESIZE: 50,
+        Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
         Param.TODATE: None,
         Param.ORDER: Order.DESC,
         Param.MIN: None,
         Param.MAX: None,
         Param.SORT: None,
-        Param.SITE: 'stackoverflow',
+        Param.SITE: site,
         Param.TAGGED : None,
         Param.NOTAGGED: None,
         Param.INTITLE: None
@@ -395,14 +425,14 @@ class TagsConfig(DefaultConfig):
     all_params = {
         'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
         Param.PAGE: 1,
-        Param.PAGESIZE: 50,
+        Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
         Param.TODATE: None,
         Param.ORDER: Order.DESC,
         Param.MIN: None,
         Param.MAX: None,
         Param.SORT: Sort.POPULAR,
-        Param.SITE: 'stackoverflow',
+        Param.SITE: site,
         Param.INNAME: None
     }
     required = [Param.ORDER, Param.SORT, Param.SITE]

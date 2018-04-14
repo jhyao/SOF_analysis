@@ -56,8 +56,8 @@ class Question(MyModel):
     title = CharField(null=True)
 
 class QuestionTags(MyModel):
-    question_id = IntegerField(null=True)
-    tag_id = IntegerField(null=True)
+    question_id = IntegerField(index=True)
+    tag = CharField(index=True)
 
 class Post(MyModel):
     post_id = IntegerField(primary_key=True)

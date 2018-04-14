@@ -71,7 +71,7 @@ class QuestionsApi(ApiSpider):
     def item_transfer(self, item):
         owner = item.pop('owner', None)
         if owner:
-            item['owner'] = owner['user_id']
+            item['owner'] = owner.get('user_id', None)
 
 
 class QuestionsByIdsApi(QuestionsApi):

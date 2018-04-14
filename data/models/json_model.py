@@ -3,6 +3,9 @@ import peewee
 import json
 from packaging import version
 from ..model2json import ModelEncoder
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class JSONModel(Model):
@@ -62,9 +65,9 @@ class JSONModel(Model):
         return cls.replace_many(rows, fields)
     
     @classmethod
-    def get_or_create_from_json(defaults_json=None, **kwargs):
+    def get_or_create_from_json(cls, defaults_json=None, **kwargs):
         defaults = cls.load_data(defaults_json)
-        return cls.get_or_create(defaults, **kwargs)
+        return cls.get_or_create(defaults=defaults, **kwargs)
     
     @classmethod
     def get_to_json(cls, *query, **kwargs):
@@ -100,6 +103,20 @@ class JSONModel(Model):
     def get_select_to_json(cls, query, single=False):
         result = cls.get_select(query, single)
         return ModelEncoder(ensure_ascii=False).encode(result)
+
+    @classmethod
+    def insert_many_execute(cls, rows, fields=None):
+        if len(rows) == 0:
+            return
+        try:
+            cls.insert_many(rows).execute()
+        except Exception as e:
+            logger.warning('insert many error, try insert one by one...')
+            for item in rows:
+                try:
+                    cls.insert(**item).execute()
+                except Exception as e:
+                    logger.warning(e.__class__.__name__ + str(e.args))
 
     def get_data(self):
         if version.parse(peewee.__version__) > version.parse('2.10.2'):

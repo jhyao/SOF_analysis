@@ -1,7 +1,9 @@
 from .json_model import JSONModel
 from ..model2json import ModelEncoder
 from peewee import SelectQuery
+import logging
 
+logger = logging.getLogger(__name__)
 
 class JSONModel_async(JSONModel):
 
@@ -110,3 +112,17 @@ class JSONModel_async(JSONModel):
             rows = 1
         self._dirty.clear()
         return rows
+
+    @classmethod
+    async def insert_many_execute_async(cls, rows, fields=None):
+        if len(rows) == 0:
+            return
+        try:
+            await cls.execute_query(cls.insert_many(rows))
+        except Exception as e:
+            logger.warning('insert many error, try insert one by one...')
+            for item in rows:
+                try:
+                    await cls.execute_query(cls.insert(**item))
+                except Exception as e:
+                    logger.warning(e.__class__.__name__ + str(e.args))
