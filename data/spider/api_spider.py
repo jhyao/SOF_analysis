@@ -22,6 +22,12 @@ class ApiSpider(object):
         self.params = self.fix_params(kwargs)
         self.session = None
         self.session_async = None
+
+    def add_token(self):
+        if spider_config.key:
+            self.params['key'] = spider_config.key
+        if spider_config.access_token:
+            self.params['access_token'] = spider_config.access_token
     
     @classmethod
     def fix_params(cls, params):
@@ -121,6 +127,7 @@ class ApiSpider(object):
             headers['Referer'] = self.config.referer
             self.session = requests.Session()
             self.session.headers = headers
+        logger.info(f'Getting page {params["page"]}')
         with self.session.get(url, params=params) as resp:
             logger.info('GET ' + str(resp.url))
             data = resp.json()
@@ -135,9 +142,10 @@ class ApiSpider(object):
             headers = dict(spider_config.headers)
             headers['Referer'] = self.config.referer
             self.session_async = aiohttp.ClientSession(headers=headers)
+        logger.info(f'Getting page {params["page"]}')
         async with self.session_async.get(url, params=params) as resp:
             logger.info('GET ' + str(resp.url))
-            logger.debug('resp: ' + await resp.text())
+            # logger.debug('resp: ' + await resp.text())
             data = await resp.json()
             return self.data_transfer(data)
 
@@ -195,7 +203,10 @@ class ApiSpider(object):
         '''
         if 'error_id' in data:
             raise DataError(data)
-        results = data.get(RespKey.ITEMS, [])
+        results = data.pop(RespKey.ITEMS, [])
+        logger.debug(data)
+        if data.get('backoff', None):
+            raise BackOffError(data.get('backoff'))
         for item in results:
             self.item_transfer(item)
             self.item_fix(item)

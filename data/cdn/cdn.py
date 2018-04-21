@@ -1,9 +1,11 @@
 import asyncio
-from threading import Lock
+from asyncio import Lock
+
+import time
 
 from .cdn_error import PageEnd
 from ..models.json_model_async import JSONModel_async
-from ..spider.api_spider import ApiSpider
+from ..spider.api_spider import ApiSpider, DataError, BackOffError
 import logging
 
 logger = logging.getLogger(__name__)
@@ -60,30 +62,44 @@ class CDN(object):
             self.lock = Lock()
             if max_page is not None and page > max_page:
                 raise PageEnd()
+            self.__back_off_occur = None
+            self.__back__off_time = None
 
-        def get_page(self):
+        async def get_page(self):
             if self.max_page is not None and self.page > self.max_page:
                 raise PageEnd()
-            self.lock.acquire()
-            result = self.page
-            self.page += 1
-            self.lock.release()
-            return result
+            if self.__back_off_occur and self.__back__off_time:
+                sleep_time = self.__back__off_time - time.time() + self.__back_off_occur
+                if sleep_time > 0:
+                    await asyncio.sleep(sleep_time + 0.5)
+            async with self.lock:
+                result = self.page
+                self.page += 1
+                return result
+
+        def back_off(self, bo_time):
+            self.__back_off_occur = time.time()
+            self.__back__off_time = bo_time
 
     @classmethod
-    async def dld_pages_async(cls, pager=None, **kwargs):
-        if pager is None:
-            pager = cls.Pager(kwargs.pop('page', 1), kwargs.pop('max_page', None))
+    async def dld_pages_async(cls, pager_async=None, **kwargs):
+        if pager_async is None:
+            pager_async = cls.Pager(kwargs.pop('page', 1), kwargs.pop('max_page', None))
         fail_pages = []
         while True:
             try:
-                page = pager.get_page()
+                page = await pager_async.get_page()
             except PageEnd:
                 break
             try:
                 size = await cls.dld_page_async(page=page, **kwargs)
                 if size == 0:
                     break
+            except BackOffError as backoff:
+                bo_time = backoff.args[0]
+                logger.warning(f'backoff {bo_time} occur on page {page}')
+                # pager_async.back_off(bo_time)
+                time.sleep(bo_time)
             except Exception as e:
                 logger.error(e.__class__.__name__ + str(e.args))
                 fail_pages.append(page)

@@ -1,3 +1,5 @@
+import requests
+
 from .spider_constants import *
 
 pagesize = 100
@@ -26,6 +28,17 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36',
     'X-Requested-With': 'XMLHttpRequest'
 }
+key = 'UTzm)k3OHjfDwW6jLMdj2Q(('
+access_token = '1(5ho5G*V8ms2R7hFLS3qA))'
+oauth_url = 'https://stackoverflow.com/oauth/dialog'
+redirect_url = 'https://stackexchange.com/oauth/login_success'
+client_id = '12258'
+
+def get_access_token():
+    with requests.get(oauth_url, {'client_id': client_id, 'scope': 'no_expiry', 'redirect_uri': redirect_url}) as resp:
+        for h in resp.history:
+            print(h.url)
+        print(resp.url)
 
 class UrlPattern(object):
     USERS = 'users'
@@ -66,7 +79,8 @@ class UrlPattern(object):
 
 class DefaultConfig(object):
     all_params = {
-        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
+        key: key,
+        access_token: access_token,
         Param.PAGE: 1,
         Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
@@ -82,6 +96,9 @@ class DefaultConfig(object):
     keys_required = []
     fields = {}
     referer = 'https://api.stackexchange.com/docs/'
+    key = key
+    access_token = access_token
+
 
 
 class UsersConfig(DefaultConfig):
@@ -92,7 +109,8 @@ class UsersConfig(DefaultConfig):
         Sort.MODIFIED
     ]
     all_params = {
-        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
+        key: key,
+        access_token: access_token,
         Param.PAGE: 1,
         Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
@@ -145,7 +163,8 @@ class AnswersConfig(DefaultConfig):
         Sort.VOTES
     ]
     all_params = {
-        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
+        key: key,
+        access_token: access_token,
         Param.PAGE: 1,
         Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
@@ -181,7 +200,8 @@ class CommentsConfig(DefaultConfig):
         Sort.VOTES
     ]
     all_params = {
-        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
+        key: key,
+        access_token: access_token,
         Param.PAGE: 1,
         Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
@@ -228,7 +248,8 @@ class QuestionsBaseConfig(DefaultConfig):
         Sort.VOTES
     ]
     all_params = {
-        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
+        key: key,
+        access_token: access_token,
         Param.PAGE: 1,
         Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
@@ -266,7 +287,8 @@ class QuestionsConfig(QuestionsBaseConfig):
         Sort.MONTH
     ]
     all_params = {
-        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
+        key: key,
+        access_token: access_token,
         Param.PAGE: 1,
         Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
@@ -322,7 +344,8 @@ class QuestionsRelatedConfig(QuestionsBaseConfig):
 class QuestionsOfTagsConfig(QuestionsBaseConfig):
     sorts = []
     all_params = {
-        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
+        key: key,
+        access_token: access_token,
         Param.PAGE: 1,
         Param.PAGESIZE: pagesize,
         Param.SITE: site
@@ -334,7 +357,8 @@ class QuestionsOfTagsConfig(QuestionsBaseConfig):
 
 class QuestionsFeaturedConfig(QuestionsBaseConfig):
     all_params = {
-        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
+        key: key,
+        access_token: access_token,
         Param.PAGE: 1,
         Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
@@ -351,7 +375,8 @@ class QuestionsFeaturedConfig(QuestionsBaseConfig):
 
 class QuestionsUnansweredConfig(QuestionsBaseConfig):
     all_params = {
-        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
+        key: key,
+        access_token: access_token,
         Param.PAGE: 1,
         Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
@@ -374,7 +399,8 @@ class QuestionsSimilarConfig(QuestionsBaseConfig):
         Sort.RELEVANCE # order by "how similar" the questions are, most likely candidate first with a descending order
     ]
     all_params = {
-        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
+        key: key,
+        access_token: access_token,
         Param.PAGE: 1,
         Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
@@ -399,7 +425,8 @@ class QuestionsSearchConfig(QuestionsBaseConfig):
         Sort.RELEVANCE # order by "how similar" the questions are, most likely candidate first with a descending order
     ]
     all_params = {
-        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
+        key: key,
+        access_token: access_token,
         Param.PAGE: 1,
         Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
@@ -423,7 +450,8 @@ class TagsConfig(DefaultConfig):
         Sort.NAME
     ]
     all_params = {
-        'key': 'U4DMV*8nvpm3EOpvf69Rxw((',
+        key: key,
+        access_token: access_token,
         Param.PAGE: 1,
         Param.PAGESIZE: pagesize,
         Param.FROMDATE: None,
@@ -449,3 +477,5 @@ class TagsOfUsersConfig(DefaultConfig):
     url_pattern = UrlPattern.TAGS_OF_USERS
     keys_required = ['user_ids']
 
+if __name__ == '__main__':
+    get_access_token()

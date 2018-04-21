@@ -154,5 +154,11 @@ class TestJSONModel(unittest.TestCase):
         self.assertEqual('test1', objlist[0].get('name'))
         self.assertEqual('test2', objlist[1].get('name'))
 
+    def test_insert_or_update(self):
+        Test.insert_or_update(Test.id==1, name='test1_new')
+        self.assertEqual('test1_new', Test.get(id=1).name)
+        Test.insert_or_update(Test.id == 3, id=3, name='test3_new')
+        self.assertEqual('test3_new', Test.get(id=3).name)
+
 if __name__ == '__main__':
     unittest.main()

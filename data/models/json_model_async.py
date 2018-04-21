@@ -10,16 +10,16 @@ class JSONModel_async(JSONModel):
     manager = None
 
     @classmethod
-    async def create(cls, **create):
+    async def create_async(cls, **create):
         return await cls.manager.create(cls, **create)
 
     @classmethod
-    async def create_from_json(cls, create_json):
+    async def create_from_json_async(cls, create_json):
         create = cls.load_data(create_json)
         return await cls.create(**create)
     
     @classmethod
-    async def get(cls, *query, **kwargs):
+    async def get_async(cls, *query, **kwargs):
         sq = cls.select().naive()
         if query:
             sq = sq.where(*query)
@@ -32,12 +32,12 @@ class JSONModel_async(JSONModel):
             raise cls.DoesNotExist
     
     @classmethod
-    async def get_to_json(cls, *query, **kwargs):
+    async def get_to_json_async(cls, *query, **kwargs):
         result = await cls.get(*query, **kwargs)
         return ModelEncoder(ensure_ascii=False).encode(result)
     
     @classmethod
-    async def get_all(cls, *query, **kwargs):
+    async def get_all_async(cls, *query, **kwargs):
         sq = cls.select().naive()
         if query:
             sq = sq.where(*query)
@@ -50,12 +50,12 @@ class JSONModel_async(JSONModel):
             return []
     
     @classmethod
-    async def get_all_to_json(cls, *query, **kwargs):
+    async def get_all_to_json_async(cls, *query, **kwargs):
         result = await cls.get_all(*query, **kwargs)
         return ModelEncoder(ensure_ascii=False).encode(result)
     
     @classmethod
-    async def get_select(cls, query, single=False):
+    async def get_select_async(cls, query, single=False):
         if not isinstance(query, SelectQuery):
             return None
         result = await cls.execute_query(query)
@@ -68,7 +68,7 @@ class JSONModel_async(JSONModel):
             return list(result)
     
     @classmethod
-    async def get_select_to_json(cls, query, single=False):
+    async def get_select_to_json_async(cls, query, single=False):
         result = await cls.get_select(query, single)
         return ModelEncoder(ensure_ascii=False).encode(result)
     
@@ -76,7 +76,7 @@ class JSONModel_async(JSONModel):
     async def execute_query(cls, query):
         return await cls.manager.execute(query)
     
-    async def save(self, force_insert=False, only=None):
+    async def save_async(self, force_insert=False, only=None):
         field_dict = dict(self._data)
         if self._meta.primary_key is not False:
             pk_field = self._meta.primary_key
@@ -126,3 +126,12 @@ class JSONModel_async(JSONModel):
                     await cls.execute_query(cls.insert(**item))
                 except Exception as e:
                     logger.warning(e.__class__.__name__ + str(e.args))
+
+    @classmethod
+    async def insert_or_update_async(cls, *query, **data):
+        try:
+            obj = await cls.get_async(*query)
+            if obj:
+                cls.execute_query(cls.update(**data).where(*query))
+        except cls.DoesNotExist:
+            cls.execute_query(cls.insert(**data))

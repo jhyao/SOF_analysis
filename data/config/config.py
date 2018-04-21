@@ -35,6 +35,15 @@ CONFIG = {
         'max_connections': 10,
         'charset': 'utf8'
     },
+    'db_analysis': {
+        'host': 'localhost',
+        'port': 3306,
+        'user': 'user',
+        'passwd': 'password',
+        'database': 'database',
+        'max_connections': 10,
+        'charset': 'utf8'
+    },
     'redis': {
         'host': 'localhost',
         'port': 6379,
@@ -59,13 +68,15 @@ logger = logging.getLogger(__name__)
 
 
 class Config(object):
-    def __init__(self, env=None):
-        if not env:
-            env = CONFIG.get('env', {}).get('env', None)
-        if env == 'root':
+    def __init__(self, db=None):
+        if not db:
+            db = CONFIG.get('env', {}).get('env', None)
+        if db == 'root':
             self.db = CONFIG.get('db_root')
-        elif env == 'test':
+        elif db == 'test':
             self.db = CONFIG.get('db_test')
+        elif db == 'analysis':
+            self.db = CONFIG.get('db_analysis')
         else:
             self.db = CONFIG.get('db')
         self.redis_config = CONFIG.get('redis')
@@ -81,7 +92,7 @@ class Config(object):
             charset=self.db.get('charset')
         )
         self.database_async = peewee_async.MySQLDatabase(
-            'sof_basic',
+            self.db.get('database'),
             host=self.db.get('host'),
             port=self.db.get('port', 3306),
             user=self.db.get('user'),
@@ -89,7 +100,7 @@ class Config(object):
             charset=self.db.get('charset')
         )
         self.pool = PooledMySQLDatabase(
-            'sof_basic',
+            self.db.get('database'),
             host=self.db.get('host'),
             port=self.db.get('port', 3306),
             user=self.db.get('user'),
@@ -97,7 +108,7 @@ class Config(object):
             max_connections=self.db.get('max_connections', 10)
         )
         self.pool_async = peewee_async.PooledMySQLDatabase(
-            'sof_basic',
+            self.db.get('database'),
             host=self.db.get('host'),
             port=self.db.get('port', 3306),
             user=self.db.get('user'),

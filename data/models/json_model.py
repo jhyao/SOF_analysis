@@ -118,6 +118,22 @@ class JSONModel(Model):
                 except Exception as e:
                     logger.warning(e.__class__.__name__ + str(e.args))
 
+    @classmethod
+    def insert_or_update(cls, *query, **data):
+        try:
+            obj = cls.get(*query)
+            if obj:
+                cls.update(**data).where(*query).execute()
+        except cls.DoesNotExist:
+            cls.insert(**data).execute()
+
+    @classmethod
+    def insert_if_not_exist(cls, *query, **data):
+        try:
+            obj = cls.get(*query)
+        except cls.DoesNotExist:
+            cls.insert(**data).execute()
+
     def get_data(self):
         if version.parse(peewee.__version__) > version.parse('2.10.2'):
             return self.__data__

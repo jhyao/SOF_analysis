@@ -15,6 +15,10 @@ class DataError(ApiError):
         self.error_name = error.get('error_name', 'unnamed')
 
 
+class BackOffError(ApiError):
+    pass
+
+
 if __name__ == '__main__':
     raise DataError(error_id=502, error_message='sdfsd', error_name='sf')
 

@@ -4,6 +4,7 @@ from .json_model_async import JSONModel_async
 import peewee_async
 
 from ..config.config import config, Config
+
 logger = logging.getLogger(__name__)
 
 
@@ -41,6 +42,7 @@ class Tag(MyModel):
     has_synonyms = BooleanField(null=True)
     is_moderator_only = BooleanField(null=True)
     from_tag = CharField(null=True)
+    id = IntegerField(null=True)
 
 
 class Question(MyModel):
