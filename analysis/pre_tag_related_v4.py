@@ -1,11 +1,19 @@
 from analysis.common import *
 
-from analysis.analysis_models import TagRelated
-from data.models.sof_models import QuestionTags, Question, Tag
+from data.models.analysis_models import TagRelated
+from data.models.sof_models import QuestionTags, Tag
 
 
 def get_tag_id(tag, tag_index):
     return tag_index[tag]
+
+
+def add_unique_key():
+    Tag.raw('ALTER TABLE questiontags add CONSTRAINT unique_question_tag UNIQUE (question_id,tag)').execute()
+
+
+def drop_unique_key():
+    Tag.raw('ALTER TABLE questiontags DROP UNIQUE KEY unique_question_tag').execute()
 
 
 def index_tags_ids(min_question_num, save=True, msg=None):
@@ -20,7 +28,7 @@ def index_tags_ids(min_question_num, save=True, msg=None):
         index_tag[tag_index[tag]] = tag
     save_step_data(tag_index, step='1-1', save=save, msg=msg)
     save_step_data(index_tag, step='1-2', save=save, msg=msg)
-    logger.info(f'get tag index finished, tags: {len(tag_index.keys())}')
+    logger.info(f'get tag index finished, tags num: {len(tag_index.keys())}')
     return tag_index, index_tag
 
 
@@ -77,7 +85,7 @@ def calculate_related_weight(tag_questions_index, related_set, weight_func=None,
     if related_set is None:
         related_set = load_step_file('3')
     if not weight_func:
-        weight_func = lambda a, b, u: (a + b - u) / min(a, b)
+        weight_func = WeightFuncs.inter_divide_min
     related_weight = []
     for related in related_set:
         tag1_count = len(tag_questions_index[related[0]])
@@ -108,7 +116,7 @@ def save_related_to_bd(related_weight):
     ).execute()
 
 
-def tag_related_pretreatment(min_question_num=100, msg=None, step_file_dir=None, step=None, **kwargs):
+def tag_related_pretreatment(min_question_num=100, msg=None, weight_func=None, step_file_dir=None, step=None, **kwargs):
     tag_index = None
     tag_questions_index = None
     question_tags_index = None
@@ -132,19 +140,15 @@ def tag_related_pretreatment(min_question_num=100, msg=None, step_file_dir=None,
     if config['step'] <= 3:
         related_couples = get_related_couples(question_tags_index, msg=msg)
     if config['step'] <= 4:
-        related_weight = calculate_related_weight(tag_questions_index, related_couples, msg=msg)
+        related_weight = calculate_related_weight(tag_questions_index, related_couples, msg=msg, weight_func=weight_func)
     if config['step'] <= 5:
-        save_related_to_bd(related_weight)
+        pass
+        # save_related_to_bd(related_weight)
 
-class WeightFuncs:
-    inter_divide_union = lambda a, b, u: (a + b - u) / u
-    inter_divide_min = lambda a, b, u: (a + b - u) / min(a, b)
-    inter_divide_max = lambda a, b, u: (a + b - u) / max(a, b)
 
 if __name__ == '__main__':
-    tag_related_pretreatment(
-        msg='min weight 0.1, weight=(tag1_count + tag2_count - all) / min(tag1_count, tag2_count)',
-        step_file_dir='2018-04-20 13-04-48',
-        step=5
-    )
+    min_question_num = 100
+    weight_func = WeightFuncs.inter_divide_min
+    msg = f'min_question_num={min_question_num}, weight_func={weight_func.__name__}'
+    tag_related_pretreatment(min_question_num=min_question_num, weight_func=weight_func, msg=msg)
     # print(create_tag('xxxxxxx'))

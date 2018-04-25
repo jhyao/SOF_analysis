@@ -21,6 +21,18 @@ class TagRelated(MyModel):
     weight = DoubleField(null=True)
 
 
+class TagClf(MyModel):
+    tag = CharField(primary_key=True)
+    clf = CharField(index=True)
+    is_core = BooleanField(default=False)
+
+
+class UserTags(MyModel):
+    user = IntegerField()
+    tag = CharField()
+    question_count = IntegerField(default=0)
+    answer_count = IntegerField(default=0)
+
 if __name__ == '__main__':
     root = Config('analysis')
 

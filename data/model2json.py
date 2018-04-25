@@ -9,12 +9,14 @@ class ModelEncoder(JSONEncoder):
             return o.get_data()
         if isinstance(o, datetime.datetime):
             return int(o.timestamp())
+        if isinstance(o, set):
+            return list(o)
         # Let the base class default method raise the TypeError
-        return json.JSONEncoder.default(self, o)
+        return JSONEncoder.default(self, o)
 
 
 class ModelDecoder(JSONDecoder):
 
-    def hook():
+    def hook(self):
         pass
     

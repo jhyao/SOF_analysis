@@ -4,4 +4,8 @@ database mongodb 1
 database oracle 1
 database sql 1
 forms html 1
-nodejs javascript 1
+node.js javascript 1
+linux bash 1
+c c++ 1
+winapi c++ 1
+concurrency java 1

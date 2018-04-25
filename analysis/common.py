@@ -7,6 +7,7 @@ import logging
 import matplotlib.colors
 import networkx as nx
 import matplotlib.pyplot as plt
+from sklearn.cluster import *
 
 config = {
     'file_dir': 'E:\\SOF\\file',
@@ -16,6 +17,45 @@ config = {
 }
 
 logger = logging.getLogger(__name__)
+
+
+class WeightFuncs:
+    @staticmethod
+    def inter_divide_union(a, b, u):
+        try:
+            return (a + b - u) / u
+        except:
+            return 0
+    @staticmethod
+    def inter_divide_min(a, b, u):
+        try:
+            return (a + b - u) / min(a, b)
+        except:
+            return 0
+    @staticmethod
+    def inter_divide_max(a, b, u):
+        try:
+            return (a + b - u) / max(a, b)
+        except:
+            return 0
+
+
+class ClusterMethod:
+    @staticmethod
+    def kmeans(n_clusters, eigvecs):
+        s = KMeans(n_clusters=n_clusters).fit(eigvecs)
+        return s.labels_
+
+    @staticmethod
+    def agglomerative(n_clusters, eigvecs):
+        s = AgglomerativeClustering(n_clusters=n_clusters).fit(eigvecs)
+        return s.labels_
+
+    @staticmethod
+    def spectral(n_clusters, eigvecs):
+        s = SpectralClustering(n_clusters=n_clusters).fit(eigvecs)
+        return s.labels_
+
 
 def create_file_folder():
     file_dir = config['file_dir']
@@ -59,7 +99,10 @@ def load_file(file_path):
             elif line.startswith('{') or line.startswith('['):
                 result.append(json.loads(line))
             else:
-                result.append([transfer_field(field) for field in line.split(' ')])
+                if len(line.split(' ')) > 1:
+                    result.append([transfer_field(field) for field in line.split(' ')])
+                else:
+                    result.append(transfer_field(line))
         return result
 
 def transfer_field(field):
@@ -75,7 +118,8 @@ def save_step_data(data, step, transfer_item=None, save=True, msg=None):
         return
     file = create_step_file(step)
     if msg:
-        file.write(f'# {msg}\n')
+        for l in msg.split('\n'):
+            file.write(f'# {l}\n')
     if isinstance(data, dict):
         file.write(json.dumps(data))
     elif hasattr(data, '__iter__'):
@@ -83,13 +127,13 @@ def save_step_data(data, step, transfer_item=None, save=True, msg=None):
             if transfer_item:
                 file.write(transfer_item(item) + '\n')
             else:
-                file.write(item + '\n')
+                file.write(str(item) + '\n')
     else:
         pass
     file.close()
 
 
-def save_graph(graph, step, clf=None, save=True, msg=None, fig_size=30, node_size=5,
+def save_graph(graph, step, clf=None, save=True, msg=None, fig_size=20, node_size=5,
                edge_color='#acacac', edge_cm='Greys', clf_cm='gist_rainbow', font_size=12):
     if not save:
         return
@@ -104,11 +148,9 @@ def save_graph(graph, step, clf=None, save=True, msg=None, fig_size=30, node_siz
         nx.draw_networkx_edges(graph, pos, edge_color=edge_color, edge_cmap=plt.cm.get_cmap(edge_cm))
         clf_colors_mapper = plt.cm.ScalarMappable(matplotlib.colors.Normalize(0, len(clf.keys()) - 1),
                                                   plt.cm.get_cmap(clf_cm))
-        for c in clf:
-            color = clf_colors_mapper.to_rgba(int(c))
+        for i, c in enumerate(clf.keys()):
+            color = clf_colors_mapper.to_rgba(i)
             # logger.debug(color)
-            nx.draw_networkx_nodes(graph, pos, nodelist=clf[c], node_size=node_size,
-                                   node_color=clf_colors_mapper.to_rgba(int(c)))
-            nx.draw_networkx_labels(graph, pos, labels=dict((n, n) for n in clf[c]), font_size=font_size,
-                                    font_color=clf_colors_mapper.to_rgba(int(c)))
+            nx.draw_networkx_nodes(graph, pos, nodelist=clf[c], node_size=node_size, node_color=color)
+            nx.draw_networkx_labels(graph, pos, labels=dict((n, n) for n in clf[c]), font_size=font_size, font_color=color)
     plt.savefig(file_path)

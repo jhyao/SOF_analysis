@@ -6,6 +6,7 @@ import time
 from .cdn_error import PageEnd
 from ..models.json_model_async import JSONModel_async
 from ..spider.api_spider import ApiSpider, DataError, BackOffError
+from ..cache.redis_cache import Cache
 import logging
 
 logger = logging.getLogger(__name__)
@@ -14,6 +15,15 @@ logger = logging.getLogger(__name__)
 class CDN(object):
     model = JSONModel_async
     api = ApiSpider
+    cache = Cache
+
+    @classmethod
+    def get_cache(cls, key):
+        return cls.cache.get(key)
+
+    @classmethod
+    def set_cache(cls, key, value, **kwargs):
+        return cls.cache.set(key, value, **kwargs)
 
     @classmethod
     def count(cls, unit=10000, **kwargs):
@@ -45,14 +55,16 @@ class CDN(object):
         return page_size * (start - 1) + len(data)
 
     @classmethod
-    def dld_page(cls, **kwargs):
+    def dld_page(cls, save=True, **kwargs):
         page_data = cls.api(**kwargs).get()
-        cls.model.insert_many_execute(page_data)
+        if save:
+            cls.model.insert_many_execute(page_data)
 
     @classmethod
-    async def dld_page_async(cls, **kwargs):
+    async def dld_page_async(cls, save=True, **kwargs):
         page_data = await cls.api(**kwargs).get_async()
-        await cls.model.insert_many_execute_async(page_data)
+        if save:
+            await cls.model.insert_many_execute_async(page_data)
         return len(page_data)
 
     class Pager:
@@ -82,7 +94,7 @@ class CDN(object):
             self.__back__off_time = bo_time
 
     @classmethod
-    async def dld_pages_async(cls, pager_async=None, **kwargs):
+    async def dld_pages_async(cls, pager_async=None, save=True, **kwargs):
         if pager_async is None:
             pager_async = cls.Pager(kwargs.pop('page', 1), kwargs.pop('max_page', None))
         fail_pages = []
@@ -92,7 +104,7 @@ class CDN(object):
             except PageEnd:
                 break
             try:
-                size = await cls.dld_page_async(page=page, **kwargs)
+                size = await cls.dld_page_async(page=page, save=save, **kwargs)
                 if size == 0:
                     break
             except BackOffError as backoff:
@@ -108,9 +120,9 @@ class CDN(object):
             logger.error('dld pages failed: ' + str(fail_pages))
 
     @classmethod
-    async def dld_pages_async_parallel(cls, parallel_num=5, **kwargs):
+    async def dld_pages_async_parallel(cls, parallel_num=5, save=True, **kwargs):
         pager = cls.Pager(kwargs.pop('page', 1), kwargs.pop('max_page', None))
-        task_list = [cls.dld_pages_async(pager, **kwargs) for i in range(parallel_num)]
+        task_list = [cls.dld_pages_async(pager, save=save, **kwargs) for i in range(parallel_num)]
         await asyncio.wait(task_list)
 
 

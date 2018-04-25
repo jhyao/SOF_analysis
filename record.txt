@@ -1,0 +1,71 @@
+# 4-23-1
+too slow select when select questiontags
+drop index on questiontags.question_id and questiontags.tag, remain unique key on (question_id, tag)
+
+## pretreatment 2018-04-23 15-52-34
+min_question_num=50
+tags: 591
+questiontags: 71074
+weighted_related_couples: 20176
+## tag clustering 2018-04-23 16-00-31
+k = 17
+min_weight = 0.3
+min_component = 5
+clustering_method = ClusterMethod.spectral
+individual_tags = ['python', 'ios', 'r', 'android', 'c#', 'javascript', 'html', 'java', 'php', 'c++']
+filted_realted: 618
+tags: 449
+clustering failed ['javascript', 'html']
+
+
+# pre E:\SOF\file\2018-04-23 16-02-54
+min_questions=100
+tags: 306
+questiontags: 69472
+weighted_related_couples: 10309
+# tag clustering
+k = 17 2018-04-23 16-07-33
+min_weight = 0.3
+min_component = 5
+clustering_method = ClusterMethod.spectral
+individual_tags = ['python', 'ios', 'r', 'android', 'c#', 'javascript', 'html', 'java', 'php', 'c++']
+filted_realted: 291
+tags: 229
+clustering failed ['c++', 'python']
+# tag clustering
+k = 18 2018-04-23 16-08-55
+failed
+k = 19 2018-04-23 16-09-21
+failed
+k= 20 2018-04-23 16-09-52
+passed
+k = 16 2018-04-23 16-17-54
+failed
+k = 15 2018-04-23 16-18-44
+pass
+k = 15 2018-04-23 16-18-57
+fail
+
+final clf k=15, 2018-04-23 16-18-44
+相同的输入条件也会有不同的聚类效果
+可以尝试手动设定中心点在聚类
+
+self check with classify mothod: failed
+winapi, windows in python class
+
+k=18, ignore winapi, windows 2018-04-23 17-39-02
+failed
+
+clustering v4: 2018-04-23 19-19-14
+success
+but k is limited by individual_tags
+and amazing thing is that 'selenium' is classified to 'javascript', not 'python'.
+
+clustering v5: 2018-04-23 20-01-42
+failed
+can't set a center for 'others' class
+use ignore_tags_file
+
+add classify check on clustering v4
+E:\SOF\file\tag_clustering\2018-04-23 22-32-24
+分类算法有问题， 不能只判断均值，只和簇中的一个tag有关联也可以归入簇

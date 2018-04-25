@@ -1,8 +1,7 @@
 import os
 
-from analysis.analysis_models import TagRelated
+from data.models.analysis_models import TagRelated
 from data.models.sof_models import QuestionTags, Question, Tag
-import logging
 
 tag_related_path = 'E:\\SOF\\file\\tag_related.txt'
 tag_related_weight_path = 'E:\\SOF\\file\\tag_related_weight.txt'

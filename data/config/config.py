@@ -47,12 +47,14 @@ CONFIG = {
     'redis': {
         'host': 'localhost',
         'port': 6379,
-        'minsize': 5,
+        'password': None,
+        'db': 0,
         'maxsize': 10
     },
     'logging': {
         'format': '%(asctime)s %(name)s %(levelname)s: %(message)s',
-        'level': logging.INFO
+        'level': logging.INFO,
+        'log_file': None
     }
 }
 
@@ -63,7 +65,7 @@ try:
 except ImportError:
     raise Exception('No config found')
 
-logging.basicConfig(format=CONFIG['logging']['format'], level=CONFIG['logging']['level'])
+logging.basicConfig(format=CONFIG['logging']['format'], level=CONFIG['logging']['level'], filename=CONFIG['logging']['log_file'])
 logger = logging.getLogger(__name__)
 
 
@@ -123,10 +125,13 @@ class Config(object):
         #     maxsize=config['redis']['maxsize'],
         #     loop=asyncio.get_event_loop()
         # )
-
-        self.redis_pool = redis.ConnectionPool(
-            self.redis_config['host'],
+        logger.debug('redis setting: ' + str(self.redis_config))
+        self.redis = redis.ConnectionPool(
+            host=self.redis_config['host'],
             port=self.redis_config['port'],
+            password=self.redis_config['password'],
+            db=self.redis_config['db'],
+            max_connections=self.redis_config['maxsize'],
             decode_responses=True
         )
 

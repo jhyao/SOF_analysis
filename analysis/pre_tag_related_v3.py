@@ -1,15 +1,12 @@
 import ast
 import datetime
 import json
+import logging
 import os
 
-import itertools
 import networkx as nx
-from matplotlib import pyplot as plt
 
-from analysis.analysis_models import TagRelated
-from data.models.sof_models import QuestionTags, Question, Tag
-import logging
+from data.models.sof_models import QuestionTags, Tag
 
 logger = logging.getLogger(__name__)
 
