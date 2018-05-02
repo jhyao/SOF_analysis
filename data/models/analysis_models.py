@@ -23,20 +23,22 @@ class TagRelated(MyModel):
 
 class TagClf(MyModel):
     tag = CharField(primary_key=True)
-    clf = CharField(index=True)
+    clf = TextField()
     is_core = BooleanField(default=False)
 
 
 class UserTags(MyModel):
-    user = IntegerField()
+    user_id = IntegerField(index=True)
     tag = CharField()
     question_count = IntegerField(default=0)
+    question_score = IntegerField(default=0)
     answer_count = IntegerField(default=0)
+    answer_score = IntegerField(default=0)
 
 if __name__ == '__main__':
     root = Config('analysis')
 
     root.database.connect()
-    # root.database.drop_tables([TagRelated])
-    root.database.create_tables([TagRelated])
+    root.database.drop_tables([TagClf])
+    root.database.create_tables([TagClf])
     root.database.close()

@@ -105,6 +105,14 @@ class JSONModel(Model):
         return ModelEncoder(ensure_ascii=False).encode(result)
 
     @classmethod
+    def get_select_to_dict(cls, query, single=False):
+        result = cls.get_select(query, single)
+        if result:
+            return [item.get_data() for item in result]
+        else:
+            return None
+
+    @classmethod
     def insert_many_execute(cls, rows, fields=None):
         if len(rows) == 0:
             return

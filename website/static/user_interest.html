@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SOF analysis</title>
+    <script src="js/echarts.min.js"></script>
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div class="header">
+    <div class="header-toggle">
+        <a class="header-item" id="tag-classify" href="index.html">tag classify</a>
+        <a class="header-item header-active" id="user-interest" href="#">user interest</a>
+    </div>
+</div>
+<div class="container">
+    <div class="search-form">
+        <input class="search-input" type="text" placeholder="user_id">
+        <button class="search-button" onclick="user_interest()">search</button>
+    </div>
+    <div id="weight-chart"></div>
+</div>
+
+<script>
+    var myChart = echarts.init(document.getElementById('weight-chart'));
+    function show_cahrts(interest) {
+        // 指定图表的配置项和数据
+        var cls = Object.keys(interest);
+        var answer_score = [];
+        var question_score = [];
+        $.each(cls, function (i, item) {
+            question_score.push({name: item, value: interest[item][1]});
+            answer_score.push({name: item, value: interest[item][3]});
+        });
+        var option = {
+            title: {
+                text: '南丁格尔玫瑰图',
+                subtext: '纯属虚构',
+                x: 'center'
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: "{a} <br/>{b} : {c} ({d}%)"
+            },
+            legend: {
+                x: 'center',
+                y: 'bottom',
+                data: cls
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    mark: {show: true},
+                    dataView: {show: true, readOnly: false},
+                    magicType: {
+                        show: true,
+                        type: ['pie', 'funnel']
+                    },
+                    restore: {show: true},
+                    saveAsImage: {show: true}
+                }
+            },
+            calculable: true,
+            series: [
+                {
+                    name: 'question score',
+                    type: 'pie',
+                    radius: [20, 110],
+                    center: ['25%', '50%'],
+                    roseType: 'radius',
+                    label: {
+                        normal: {
+                            show: false
+                        },
+                        emphasis: {
+                            show: true
+                        }
+                    },
+                    lableLine: {
+                        normal: {
+                            show: false
+                        },
+                        emphasis: {
+                            show: true
+                        }
+                    },
+                    data: question_score
+                },
+                {
+                    name: 'answer_socre',
+                    type: 'pie',
+                    radius: [30, 110],
+                    center: ['75%', '50%'],
+                    roseType: 'radius',
+                    label: {
+                        normal: {
+                            show: false
+                        },
+                        emphasis: {
+                            show: true
+                        }
+                    },
+                    lableLine: {
+                        normal: {
+                            show: false
+                        },
+                        emphasis: {
+                            show: true
+                        }
+                    },
+                    data: answer_score
+                }
+            ]
+        };
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.hideLoading();
+        myChart.setOption(option);
+    }
+
+    function user_interest() {
+        var user = $('.search-input').val();
+        myChart.showLoading();
+        $.getJSON('/api/user/' + user + '/interest', function (data) {
+            show_cahrts(data);
+        });
+    }
+</script>
+
+</body>
+</html>

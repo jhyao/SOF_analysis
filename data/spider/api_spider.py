@@ -19,6 +19,7 @@ class ApiSpider(object):
     api_url = spider_config.api_url
 
     def __init__(self, **kwargs):
+        self.keys = dict([(key, kwargs.pop(key)) for key in self.config.keys_required if key in kwargs])
         self.params = self.fix_params(kwargs)
         self.session = None
         self.session_async = None
@@ -102,11 +103,14 @@ class ApiSpider(object):
     
     def __url_and_params(self, **kwargs):
         keys = {}
-        try:
-            for key in self.config.keys_required:
+        for key in self.config.keys_required:
+            if key in kwargs:
                 keys[key] = kwargs.pop(key)
-        except KeyError:
-            raise UrlKeysError('url pattern ' + self.config.url_pattern + ' need keys')
+            elif key in self.keys:
+                keys[key] = self.keys.get(key)
+            else:
+                raise UrlKeysError('url pattern ' + self.config.url_pattern + ' need keys')
+
         url = self.get_url(self.config.url_pattern, keys)
         params = dict(self.params)
         params.update(kwargs)

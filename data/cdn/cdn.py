@@ -59,13 +59,42 @@ class CDN(object):
         page_data = cls.api(**kwargs).get()
         if save:
             cls.model.insert_many_execute(page_data)
+        return page_data
+
+    @classmethod
+    def dld_pages(cls, save=True, **kwargs):
+        page = kwargs.pop('page', 1)
+        max_page = kwargs.pop('max_page', None)
+        fail_pages = []
+        result = []
+        while True:
+            if max_page is not None and page > max_page:
+                break
+            try:
+                data = cls.dld_page(page=page, save=save, **kwargs)
+                result.extend(data)
+                if len(data) == 0:
+                    break
+            except BackOffError as backoff:
+                bo_time = backoff.args[0]
+                logger.warning(f'backoff {bo_time} occur on page {page}')
+                # pager_async.back_off(bo_time)
+                time.sleep(bo_time)
+            except Exception as e:
+                logger.error(e.__class__.__name__ + str(e.args))
+                fail_pages.append(page)
+                break
+            page += 1
+        if fail_pages:
+            logger.error('dld pages failed: ' + str(fail_pages))
+        return result
 
     @classmethod
     async def dld_page_async(cls, save=True, **kwargs):
         page_data = await cls.api(**kwargs).get_async()
         if save:
             await cls.model.insert_many_execute_async(page_data)
-        return len(page_data)
+        return page_data
 
     class Pager:
         def __init__(self, page, max_page=None):
@@ -98,14 +127,16 @@ class CDN(object):
         if pager_async is None:
             pager_async = cls.Pager(kwargs.pop('page', 1), kwargs.pop('max_page', None))
         fail_pages = []
+        result = []
         while True:
             try:
                 page = await pager_async.get_page()
             except PageEnd:
                 break
             try:
-                size = await cls.dld_page_async(page=page, save=save, **kwargs)
-                if size == 0:
+                data = await cls.dld_page_async(page=page, save=save, **kwargs)
+                result.extend(data)
+                if len(data) == 0:
                     break
             except BackOffError as backoff:
                 bo_time = backoff.args[0]
@@ -118,6 +149,7 @@ class CDN(object):
                 break
         if fail_pages:
             logger.error('dld pages failed: ' + str(fail_pages))
+        return result
 
     @classmethod
     async def dld_pages_async_parallel(cls, parallel_num=5, save=True, **kwargs):

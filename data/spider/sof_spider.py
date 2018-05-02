@@ -122,6 +122,8 @@ class TagsByNamesApi(TagsApi):
     config = spider_config.TagsByNamesConfig
 
 
-class TagsOfUsersApi(TagsApi):
-    config = spider_config.TagsOfUsersConfig
+class UserTagsApi(TagsApi):
+    config = spider_config.UserTagsConfig
 
+    def item_transfer(self, item):
+        item['tag'] = item.pop('tag_name')

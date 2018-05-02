@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SOF analysis</title>
+    <script src="js/echarts.min.js"></script>
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div class="header">
+    <div class="header-toggle">
+        <a class="header-item header-active" id="tag-classify" href="#">tag classify</a>
+        <a class="header-item" id="user-interest" href="user_interest.html">user interest</a>
+    </div>
+</div>
+<div class="container">
+    <div class="search-form">
+        <input class="search-input" type="text" placeholder="tag">
+        <button class="search-button" onclick="tag_classify()">search</button>
+    </div>
+    <div id="weight-chart"></div>
+</div>
+
+<script>
+var myChart = echarts.init(document.getElementById('weight-chart'));
+function show_cahrts(category) {
+    // 基于准备好的dom，初始化echarts实例
+    var weights = category.weights;
+    var cls = Object.keys(weights);
+    var values = [];
+    $.each(cls, function (i, item) {
+        values.push(weights[item]);
+    });
+    // 指定图表的配置项和数据
+    var option = {
+        title: {
+            text: 'result: ' + category.category
+        },
+        tooltip: {},
+//            legend: {
+//                data:['weights']
+//            },
+        xAxis: {
+            data: cls
+        },
+        yAxis: {},
+        series: [{
+            name: 'weights',
+            type: 'bar',
+            data: values
+        }]
+    };
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.hideLoading();
+    myChart.setOption(option);
+}
+
+function tag_classify() {
+    var tag = $('.search-input').val();
+    myChart.showLoading();
+    $.getJSON('/api/tag/' + tag + '/classify', function (data) {
+        show_cahrts(data);
+    });
+}
+</script>
+
+</body>
+</html>

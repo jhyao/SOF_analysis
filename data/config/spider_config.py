@@ -76,7 +76,7 @@ class UrlPattern(object):
 
     TAGS = 'tags'
     TAGS_BY_NAMES = 'tags/{tag_names}/info'
-    TAGS_OF_USERS = 'users/{user_ids}/tags'
+    TAGS_OF_USERS = '/users/{user_ids}/top-tags'
 
 
 class DefaultConfig(object):
@@ -475,9 +475,26 @@ class TagsByNamesConfig(DefaultConfig):
     keys_required = ['tag_names']
 
 
-class TagsOfUsersConfig(DefaultConfig):
+class UserTagsConfig(DefaultConfig):
     url_pattern = UrlPattern.TAGS_OF_USERS
     keys_required = ['user_ids']
+    all_params = {
+        key: key,
+        access_token: access_token,
+        Param.PAGE: 1,
+        Param.PAGESIZE: pagesize,
+        Param.SITE: site
+    }
+    required = []
+    fields = {
+        "user_id": None,
+        "answer_count": 0,
+        "answer_score": 0,
+        "question_count": 0,
+        "question_score": 0,
+        "tag": None
+    }
+    referer = 'https://api.stackexchange.com/docs/top-tags-on-users'
 
 if __name__ == '__main__':
     get_access_token()

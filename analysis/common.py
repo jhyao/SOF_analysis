@@ -72,8 +72,8 @@ def create_step_file_path(step):
     file_path = os.path.join(config['file_dir'], config['step_file_dir'], config['step_file_name'] + str(step))
     return file_path
 
-def create_step_file(step):
-    file_path = create_step_file_path(step)
+def create_step_file(step, file_path=None):
+    file_path = file_path or create_step_file_path(step)
     if os.path.isfile(file_path):
         return open(file_path, 'w')
     else:
@@ -113,10 +113,10 @@ def transfer_field(field):
     return field
 
 
-def save_step_data(data, step, transfer_item=None, save=True, msg=None):
+def save_step_data(data, step, transfer_item=None, save=True, msg=None, file_path=None):
     if not save:
         return
-    file = create_step_file(step)
+    file = create_step_file(step, file_path)
     if msg:
         for l in msg.split('\n'):
             file.write(f'# {l}\n')

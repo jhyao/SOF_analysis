@@ -1,6 +1,6 @@
 from data.cache.redis_cache import Cache
 from data.cache.redis_keys import *
-from data.models.analysis_models import TagClf
+from data.models.analysis_models import TagClf, UserTags
 from utils.date_transfer import date_to_timestamp
 from .cdn import CDN
 from ..models.sof_models import *
@@ -40,15 +40,16 @@ class TagsCDN(CDN):
             tag_index = {}
             for item in TagClf.select():
                 tag_index[item.tag] = item.clf
-            cls.cache.set_tags_category(tag_index)
+            cls.cache.set_tag_category_many(tag_index)
         return tag_index
 
     @classmethod
-    def get_tag_category(cls, tag):
+    def get_tag_category(cls, tag, from_db=True):
         c = cls.cache.get_tag_category(tag)
-        if not c:
+        if not c and from_db:
             try:
-                c = TagClf.get(tag=tag).clf
+                c = json.loads(TagClf.get(tag=tag).clf)
+                cls.set_tag_category(tag, c)
             except:
                 pass
         return c
@@ -59,12 +60,15 @@ class TagsCDN(CDN):
         return cls.cache.set_core_tag_clf(text)
 
     @classmethod
-    def set_tags_category(cls, tag_index):
-        return cls.cache.set_tags_category(tag_index)
+    def set_tag_category_many(cls, tag_index):
+        return cls.cache.set_tag_category_many(tag_index)
 
     @classmethod
-    def set_tag_category(cls, tag, c):
+    def set_tag_category(cls, tag, c, to_db=True):
+        is_core = c.pop('is_core', False)
         cls.cache.set_tag_category(tag, c)
+        if to_db:
+            TagClf.insert_or_update(TagClf.tag == tag, tag=tag, clf=json.dumps(c), is_core=is_core)
 
     @classmethod
     def save_to_db(cls):
@@ -76,7 +80,7 @@ class TagsCDN(CDN):
 class QuestionsCDN(CDN):
     model = Question
     api = QuestionsApi
-    cache = QuestionsCache
+    cache = TagQuestionsCache
 
     @classmethod
     def dld_page(cls, save=True, **kwargs):
@@ -114,7 +118,7 @@ class QuestionsCDN(CDN):
                 cls.cache.add_tag_questions(tag, questions)
         if len(questions) < min_num and from_api:
             logger.info(f'get {tag} questions from api')
-            question_tags = cls.dld_page(save=save, tagged=tag, sort='votes', min=0, pagesize=min_num,
+            question_tags = cls.dld_pages(save=save, tagged=tag, sort='votes', min=0, pagesize=100, max_page=min_num//100+1,
                                          fromdate=date_to_timestamp('2017-01-01'),
                                          todate=date_to_timestamp('2018-04-01'))
             index = {}
@@ -125,7 +129,7 @@ class QuestionsCDN(CDN):
                     index[item['tag']].add(item['question_id'])
             for t in index:
                 cls.cache.add_tag_questions(t, index[t])
-            questions |= index[tag]
+            questions |= index.get(tag, set())
         return questions
 
     @classmethod
@@ -133,12 +137,39 @@ class QuestionsCDN(CDN):
         return cls.cache.get_all_tag_questions()
 
     @classmethod
-    def load__cache(cls):
+    def load_to_cache(cls):
         index = {}
         for qt in QuestionTags.select():
             if qt.tag in index:
                 index[qt.tag].add(qt.question_id)
             else:
                 index[qt.tag] = {qt.question_id}
-        cls.cache.add_tag_questions()
+        cls.cache.set_tags_questions_many(index)
+
+
+class UserTagsCDN(CDN):
+    model = UserTags
+    api = UserTagsApi
+    cache = UserTagsCache
+
+    @classmethod
+    def get_user_tags(cls, user_id, save=True, from_cache=True, from_db=True, from_api=True):
+        if from_cache:
+            tags = cls.cache.get_user_tags(user_id)
+            logger.debug(f'get user ({user_id}) tags from cache')
+        else:
+            tags = {}
+        if not tags and from_db:
+            logger.debug(f'get user ({user_id}) tags from db')
+            tags = cls.model.get_select_to_dict(cls.model.user_id == user_id)
+            if tags:
+                cls.cache.set_user_tags(user_id, tags)
+        if not tags and from_api:
+            logger.debug(f'get user ({user_id}) tags from api')
+            tags = cls.dld_pages(save=save, user_ids=[user_id])
+            cls.cache.set_user_tags(user_id, tags)
+        return tags
+
+
+
 
