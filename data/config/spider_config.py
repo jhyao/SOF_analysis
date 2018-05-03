@@ -28,10 +28,13 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36',
     'X-Requested-With': 'XMLHttpRequest'
 }
-# key = 'UTzm)k3OHjfDwW6jLMdj2Q(('
-# access_token = '1(5ho5G*V8ms2R7hFLS3qA))'
-key = 'U4DMV*8nvpm3EOpvf69Rxw(('
-access_token = None
+cookie_file = r''
+access_token = '1(5ho5G*V8ms2R7hFLS3qA))'
+# key from my app
+key = 'UTzm)k3OHjfDwW6jLMdj2Q(('
+# key from website
+# key = 'U4DMV*8nvpm3EOpvf69Rxw(('
+# access_token = None
 oauth_url = 'https://stackoverflow.com/oauth/dialog'
 redirect_url = 'https://stackexchange.com/oauth/login_success'
 client_id = '12258'

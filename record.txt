@@ -69,3 +69,13 @@ use ignore_tags_file
 add classify check on clustering v4
 E:\SOF\file\tag_clustering\2018-04-23 22-32-24
 分类算法有问题， 不能只判断均值，只和簇中的一个tag有关联也可以归入簇
+
+
+2018-05-03 12-01-17
+min_weight = 0.3
+min_component = 5
+k = 20
+clustering_method = ClusterMethod.kmeans
+related: 141516
+filtered: 1919
+tags: 1402

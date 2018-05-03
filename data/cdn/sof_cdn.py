@@ -1,6 +1,6 @@
 from data.cache.redis_cache import Cache
 from data.cache.redis_keys import *
-from data.models.analysis_models import TagClf, UserTags
+from data.models.analysis_models import TagClf, UserTags, TagRelated
 from utils.date_transfer import date_to_timestamp
 from .cdn import CDN
 from ..models.sof_models import *
@@ -19,19 +19,6 @@ class TagsCDN(CDN):
     model = Tag
     api = TagsApi
     cache = TagsCache
-
-    @classmethod
-    def get_core_tag_clf(cls):
-        tag_clf = cls.cache.get_core_tag_clf()
-        if not tag_clf:
-            tag_clf = {}
-            for item in TagClf.select().where(TagClf.is_core==True):
-                if item.clf in tag_clf:
-                    tag_clf[item.clf].append(item.tag)
-                else:
-                    tag_clf[item.clf] = [item.tag]
-            cls.set_core_tag_clf(tag_clf)
-        return tag_clf
 
     @classmethod
     def get_tag_index(cls):
@@ -55,11 +42,6 @@ class TagsCDN(CDN):
         return c
 
     @classmethod
-    def set_core_tag_clf(cls, tag_clf):
-        text = json.dumps(tag_clf)
-        return cls.cache.set_core_tag_clf(text)
-
-    @classmethod
     def set_tag_category_many(cls, tag_index):
         return cls.cache.set_tag_category_many(tag_index)
 
@@ -75,6 +57,11 @@ class TagsCDN(CDN):
         tag_index = cls.get_tag_index()
         for tag in tag_index:
             TagClf.insert_or_update(TagClf.tag == tag, tag=tag, clf=tag_index[tag])
+
+    @classmethod
+    def get_tags(cls, limit=None):
+        # get tags order by question count
+        return [tag.name for tag in Tag.select(Tag.name).order_by(-Tag.count).limit(limit)]
 
 
 class QuestionsCDN(CDN):
@@ -118,9 +105,11 @@ class QuestionsCDN(CDN):
                 cls.cache.add_tag_questions(tag, questions)
         if len(questions) < min_num and from_api:
             logger.info(f'get {tag} questions from api')
-            question_tags = cls.dld_pages(save=save, tagged=tag, sort='votes', min=0, pagesize=100, max_page=min_num//100+1,
-                                         fromdate=date_to_timestamp('2017-01-01'),
-                                         todate=date_to_timestamp('2018-04-01'))
+            # question_tags = cls.dld_pages(save=save, tagged=tag, sort='votes', min=0, pagesize=100, max_page=min_num//100+1,
+            #                              fromdate=date_to_timestamp('2017-01-01'),
+            #                              todate=date_to_timestamp('2018-04-01'))
+            question_tags = cls.dld_pages(save=save, tagged=tag, sort='votes', pagesize=100,
+                                          max_page=min_num // 100 + (1 if min_num % 100 > 0 else 0))
             index = {}
             for item in question_tags:
                 if item['tag'] not in index:
@@ -144,8 +133,34 @@ class QuestionsCDN(CDN):
                 index[qt.tag].add(qt.question_id)
             else:
                 index[qt.tag] = {qt.question_id}
-        cls.cache.set_tags_questions_many(index)
+        for t in index:
+            cls.cache.add_tag_questions(t, index[t])
 
+    @classmethod
+    def save_to_db(cls):
+        tag_questions = cls.get_tag_questions_cached()
+        QuestionTags.truncate_table()
+        insert_set = []
+        for tag in tag_questions:
+            insert_set.extend([{'question_id': question, 'tag': tag} for question in tag_questions[tag]])
+            if len(insert_set) > 500:
+                QuestionTags.insert_many_execute(insert_set)
+                insert_set.clear()
+        QuestionTags.insert_many_execute(insert_set)
+
+
+    @classmethod
+    def tags_have_questions(cls, min_questions=100):
+        tag_questions = cls.get_tag_questions_cached()
+        return [tag for tag in tag_questions if len(tag_questions[tag]) > min_questions]
+
+    @classmethod
+    def get_tag_questions_filtered(cls, min_question=100):
+        tag_questions = cls.get_tag_questions_cached()
+        for tag in list(tag_questions.keys()):
+            if len(tag_questions[tag]) < min_question:
+                tag_questions.pop(tag)
+        return tag_questions
 
 class UserTagsCDN(CDN):
     model = UserTags
@@ -170,6 +185,37 @@ class UserTagsCDN(CDN):
             cls.cache.set_user_tags(user_id, tags)
         return tags
 
+class TagRelatedCDN(CDN):
+    model = TagRelated
+    api = None
+    cache = TagRelatedCache
 
+    @classmethod
+    def set_tag_related(cls, tag1, tag2, weight=0):
+        return cls.cache.set_tag_related(tag1, tag2, weight)
+
+    @classmethod
+    def set_tag_related_many(cls, tags_related):
+        '''
+        :param tags_related: [['a', 'b', 1], ['a', 'c', 0.5]]
+        '''
+        return cls.cache.set_tag_related_many(tags_related)
+
+    @classmethod
+    def get_related_weight(cls, tag1, tag2):
+        return cls.cache.get_tag_related(tag1, tag2)
+
+    @classmethod
+    def get_related_weight_all(cls):
+        data = cls.cache.get_tag_related_all()
+        return [[name.split()[0], name.split()[1], data[name]] for name in data]
+
+    @classmethod
+    def get_tag_related_filtered(cls, min_weight=0.2):
+        return list(filter(lambda item: item[2] >= min_weight, cls.get_related_weight_all()))
+
+    @classmethod
+    def clear_cache(cls):
+        cls.cache.clear()
 
 

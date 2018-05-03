@@ -1,11 +1,10 @@
 from json import JSONDecoder, JSONEncoder
-from .models import json_model
 import datetime
 
 class ModelEncoder(JSONEncoder):
 
     def default(self, o):
-        if isinstance(o, json_model.JSONModel):
+        if hasattr(o, 'get_data'):
             return o.get_data()
         if isinstance(o, datetime.datetime):
             return int(o.timestamp())

@@ -19,7 +19,7 @@ from analysis.classify_tag_v1 import TagClassifier
 from analysis.common import *
 import logging
 
-from data.cdn.sof_cdn import TagsCDN
+from data.cdn.sof_cdn import TagsCDN, TagRelatedCDN, CoreTagClfCache, CoreTagRankCache
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -124,7 +124,7 @@ def graph_clustering(graph, k=8, individual_tags=None, ignore_tags=None, min_com
     save_graph(graph, 'tag-clf.png', clf=result, save=save, msg=msg)
     save_step_data(result, 'tag-clf.json', save=save, msg=msg)
     save_step_data(tagranks, 'tag-rank.json', save=save, msg=msg)
-    return result
+    return result, tagranks
 
 
 def check_result(tag_clf, save=True, msg=None):
@@ -140,12 +140,12 @@ def check_result(tag_clf, save=True, msg=None):
         save_step_data(fail_list, 'check_result.txt', save=save, msg=msg)
 
 
-def save_to_cdn(tag_clf):
-    TagsCDN.set_core_tag_clf(tag_clf)
-    tag_index = dict([(tag, c) for c in tag_clf.keys() for tag in tag_clf[c]])
-    TagsCDN.set_tags_category(tag_index)
+def save_to_cdn(tag_clf, tag_rank):
+    CoreTagClfCache.set(tag_clf)
+    CoreTagRankCache.set(tag_rank)
 
-def tag_clustering(related_weight_file_path, ignore_tags_path=None, adjust_path=None,
+
+def tag_clustering(related_weight, k=20, ignore_tags_path=None, adjust_path=None,
                    min_weight=0.1, min_component=10, individual_tags=None,
                    file_dir=None, step=None, save_middle=True, msg=None, **kwargs):
     if file_dir is not None:
@@ -154,7 +154,6 @@ def tag_clustering(related_weight_file_path, ignore_tags_path=None, adjust_path=
         config['step'] = step if step > 0 else 1
     step = config['step']
 
-    related_weight = load_file(related_weight_file_path)
     if ignore_tags_path:
         ignore_tags = set(load_file(ignore_tags_path))
     else:
@@ -162,26 +161,29 @@ def tag_clustering(related_weight_file_path, ignore_tags_path=None, adjust_path=
     related_weight_filted = related_weight_filter(related_weight, min_weight=min_weight, save=False, msg=msg)
     graph = make_graph(related_weight_filted, save=save_middle, msg=msg)
     graph = weight_adjust(graph, adjust_file_path=adjust_path, save=save_middle, msg=msg)
-    result = graph_clustering(graph, individual_tags=individual_tags, ignore_tags=ignore_tags, min_component=min_component, save=True, msg=msg)
-    return result
+    result, tagranks = graph_clustering(graph, k=k, individual_tags=individual_tags, ignore_tags=ignore_tags, min_component=min_component, save=True, msg=msg)
+    return result, tagranks
 
 if __name__ == '__main__':
     min_weight = 0.3
     min_component = 5
-    clustering_method = ClusterMethod.spectral
-    individual_tags = ['python', 'java', 'ios', 'apache-spark', 'database', 'css', 'c#', 'javascript', 'r', 'c++', 'android', 'php']
-    input_path = r'E:\SOF\file\2018-04-23 16-02-54\4'
-    adjust_path = r'E:\SOF\file\tag_clustering\tag_weight_fix.txt'
-    output_path = r'E:\SOF\file\tag_clustering'
-    ignore_path = r'E:\SOF\file\tag_clustering\ignore_tags.txt'
+    clustering_method = ClusterMethod.kmeans
+    # individual_tags = ['python', 'java', 'ios', 'apache-spark', 'database', 'css', 'c#', 'javascript', 'r', 'c++', 'android', 'php']
+    # input_path = r'E:\SOF\file\2018-04-23 16-02-54\4'
+    # adjust_path = r'E:\SOF\file\tag_clustering\tag_weight_fix.txt'
+    output_path = r'E:\SOF\file\tag_clustering_v4'
+    # ignore_path = r'E:\SOF\file\tag_clustering\ignore_tags.txt'
+    individual_tags = None
+    input_path = None
+    adjust_path = None
+    ignore_path = None
 
-    min_question_num = 50
-    tag_questions_path = r'E:\SOF\file\tag_questions.json'
+    related_weight = TagRelatedCDN.get_tag_related_filtered(min_weight)
 
     msg = f"version:4, related weight data from {input_path}\nmin_weight={min_weight}, min_component={min_component},clustering_method={clustering_method.__name__}, weight adjusted\n{individual_tags}\n"
-    result = tag_clustering(input_path, file_dir=output_path, adjust_path=adjust_path,
+    result, tagranks = tag_clustering(related_weight, file_dir=output_path, adjust_path=adjust_path,
                             ignore_tags_path=ignore_path, individual_tags=individual_tags,
                             min_component=min_component, min_weight=min_weight, save_middle=True, msg=msg)
-    save_to_cdn(result)
-    check_result(result, save=True, msg=None)
+    # save_to_cdn(result, tagranks)
+    # check_result(result, save=True, msg=None)
 

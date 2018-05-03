@@ -8,6 +8,7 @@ import matplotlib.colors
 import networkx as nx
 import matplotlib.pyplot as plt
 from sklearn.cluster import *
+from data.model2json import ModelEncoder
 
 config = {
     'file_dir': 'E:\\SOF\\file',
@@ -121,7 +122,7 @@ def save_step_data(data, step, transfer_item=None, save=True, msg=None, file_pat
         for l in msg.split('\n'):
             file.write(f'# {l}\n')
     if isinstance(data, dict):
-        file.write(json.dumps(data))
+        file.write(ModelEncoder().encode(data))
     elif hasattr(data, '__iter__'):
         for item in data:
             if transfer_item:
