@@ -127,3 +127,7 @@ class UserTagsApi(TagsApi):
 
     def item_transfer(self, item):
         item['tag'] = item.pop('tag_name')
+
+
+class TagsSynonymsApi(ApiSpider):
+    config = spider_config.TagsSynonymsConfig

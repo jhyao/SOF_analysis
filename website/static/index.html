@@ -23,46 +23,61 @@
 </div>
 
 <script>
-var myChart = echarts.init(document.getElementById('weight-chart'));
-function show_cahrts(category) {
-    // 基于准备好的dom，初始化echarts实例
-    var weights = category.weights;
-    var cls = Object.keys(weights);
-    var values = [];
-    $.each(cls, function (i, item) {
-        values.push(weights[item]);
-    });
-    // 指定图表的配置项和数据
-    var option = {
-        title: {
-            text: 'result: ' + category.category
-        },
-        tooltip: {},
+    var myChart = echarts.init(document.getElementById('weight-chart'));
+    function show_cahrts(category) {
+        // 基于准备好的dom，初始化echarts实例
+        var weights = category.weights;
+        var cls = Object.keys(weights);
+        var values = [];
+        $.each(cls, function (i, item) {
+            values.push(weights[item]);
+        });
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: 'tag "' + category.tag + '" in "' + category.category + '" group',
+                subtext: 'is_core: ' + category.is_core,
+                x: 'center'
+            },
+            tooltip: {},
 //            legend: {
 //                data:['weights']
 //            },
-        xAxis: {
-            data: cls
-        },
-        yAxis: {},
-        series: [{
-            name: 'weights',
-            type: 'bar',
-            data: values
-        }]
-    };
-    // 使用刚指定的配置项和数据显示图表。
-    myChart.hideLoading();
-    myChart.setOption(option);
-}
+            xAxis: {
+                data: cls,
+                axisLabel: {
+                    interval: 0,
+                    rotate: 40
+                }
+            },
+            yAxis: {},
+            series: [{
+                name: 'weights',
+                type: 'bar',
+                data: values
+            }]
+        };
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.hideLoading();
+        myChart.setOption(option);
+    }
 
-function tag_classify() {
-    var tag = $('.search-input').val();
-    myChart.showLoading();
-    $.getJSON('/api/tag/' + tag + '/classify', function (data) {
-        show_cahrts(data);
+    function tag_classify() {
+        var tag = $('.search-input').val();
+        myChart.showLoading();
+        $.getJSON('/api/tag/' + tag + '/classify', function (data) {
+            show_cahrts(data);
+        });
+    }
+    $(function () {
+        $('.search-input').keypress(function (e) {
+            key = e.which;
+            if (key == 13) {
+                $('.search-button').click();
+                return false;
+            }
+        })
     });
-}
 </script>
 
 </body>

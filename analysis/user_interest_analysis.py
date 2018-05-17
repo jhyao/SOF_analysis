@@ -1,7 +1,7 @@
 from analysis.classify_tag_v1 import TagClassifier
 from data.cdn.sof_cdn import UserTagsCDN
 
-clifer = TagClassifier()
+clifer = TagClassifier(from_api=False)
 
 def user_interest(user_id):
     user_tags = UserTagsCDN.get_user_tags(user_id)
@@ -15,7 +15,8 @@ def user_interest(user_id):
             result[category][3] += item['answer_score']
         else:
             result[category] = [item['question_count'], item['question_score'], item['answer_count'], item['answer_score']]
-    result.pop('invalid')
+    result.pop('invalid', [])
+    result.pop('others', [])
     return result
     # cls = list(result.keys())
     # answer_interest = [result[c][1] for c in cls]

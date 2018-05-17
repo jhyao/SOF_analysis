@@ -80,6 +80,7 @@ class UrlPattern(object):
     TAGS = 'tags'
     TAGS_BY_NAMES = 'tags/{tag_names}/info'
     TAGS_OF_USERS = '/users/{user_ids}/top-tags'
+    TAGS_SYNONYMS = '/tags/synonyms'
 
 
 class DefaultConfig(object):
@@ -498,6 +499,29 @@ class UserTagsConfig(DefaultConfig):
         "tag": None
     }
     referer = 'https://api.stackexchange.com/docs/top-tags-on-users'
+
+
+class TagsSynonymsConfig(DefaultConfig):
+    url_pattern = UrlPattern.TAGS_SYNONYMS
+    all_params = {
+        key: key,
+        access_token: access_token,
+        Param.PAGE: 1,
+        Param.PAGESIZE: pagesize,
+        Param.FROMDATE: None,
+        Param.TODATE: None,
+        Param.ORDER: Order.DESC,
+        Param.MIN: None,
+        Param.MAX: None,
+        Param.SORT: None,
+        Param.SITE: site
+    }
+    required = [Param.ORDER, Param.SITE]
+    fields = {
+        "to_tag": None,
+        "from_tag": None
+    }
+    referer = 'https://api.stackexchange.com/docs/tag-synonyms'
 
 if __name__ == '__main__':
     get_access_token()

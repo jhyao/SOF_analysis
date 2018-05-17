@@ -153,3 +153,6 @@ class JSONModel(Model):
 
     def __str__(self):
         return self.get_json()
+
+    def __repr__(self):
+        return self.get_json()

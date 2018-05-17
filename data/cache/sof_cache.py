@@ -89,7 +89,7 @@ class TagRelatedCache(Cache):
 
     @classmethod
     def get_tag_related(cls, tag1, tag2):
-        return cls.hget(cls.get_related_name(tag1, tag2), default=0)
+        return cls.hget(cls.get_related_name(tag1, tag2), default=-1)
 
     @classmethod
     def get_tag_related_all(cls):
@@ -108,3 +108,6 @@ class CoreTagClfCache(Cache):
 class CoreTagRankCache(Cache):
     key = Keys.CORE_TAG_RANK
     isjson = True
+
+class TestCache(Cache):
+    key = 'test'

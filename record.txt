@@ -79,3 +79,161 @@ clustering_method = ClusterMethod.kmeans
 related: 141516
 filtered: 1919
 tags: 1402
+
+min_weight=0.3
+k=17
+D:\AllProgram\python36\python.exe E:/SOF/analysis/cluster_tag_v5.py
+2018-05-14 18:52:19,794 data.config.config DEBUG: db setting: {'host': 'localhost', 'port': 3306, 'user': 'root', 'passwd': 'LOVEyjh201697', 'database': 'sof_basic', 'max_connections': 10, 'charset': 'utf8'}
+2018-05-14 18:52:19,796 data.config.config DEBUG: redis setting: {'host': 'localhost', 'port': 6379, 'password': None, 'db': 0, 'maxsize': 10}
+2018-05-14 18:52:20,070 data.config.config DEBUG: db setting: {'host': 'localhost', 'port': 3306, 'user': 'root', 'passwd': 'LOVEyjh201697', 'database': 'sof_analysis', 'max_connections': 10, 'charset': 'utf8'}
+2018-05-14 18:52:20,071 data.config.config DEBUG: redis setting: {'host': 'localhost', 'port': 6379, 'password': None, 'db': 0, 'maxsize': 10}
+2018-05-14 18:52:28,121 __main__ INFO: related weight filter finished, related: 2848
+2018-05-14 18:52:57,025 matplotlib.font_manager DEBUG: findfont: Matching :family=sans-serif:style=normal:variant=normal:weight=bold:stretch=normal:size=12.0 to DejaVu Sans ('C:\\Users\\Administrator\\AppData\\Roaming\\Python\\Python36\\site-packages\\matplotlib\\mpl-data\\fonts\\ttf\\DejaVuSans-Bold.ttf') with score of 0.000000
+2018-05-14 18:52:59,476 matplotlib.font_manager DEBUG: findfont: Matching :family=sans-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=12.0 to DejaVu Sans ('C:\\Users\\Administrator\\AppData\\Roaming\\Python\\Python36\\site-packages\\matplotlib\\mpl-data\\fonts\\ttf\\DejaVuSans.ttf') with score of 0.050000
+2018-05-14 18:53:00,392 __main__ INFO: create graph finish, tags: 2006
+2018-05-14 18:53:00,397 __main__ DEBUG: small component {'scheme', 'racket', 'lisp', 'common-lisp'}
+2018-05-14 18:53:00,397 __main__ DEBUG: small component {'gpu', 'cuda', 'nvidia', 'gpgpu'}
+2018-05-14 18:53:00,397 __main__ DEBUG: small component {'datastax', 'cassandra'}
+2018-05-14 18:53:00,397 __main__ DEBUG: small component {'lotus-domino', 'lotus-notes', 'xpages'}
+2018-05-14 18:53:00,398 __main__ DEBUG: small component {'microsoft-graph', 'office365'}
+2018-05-14 18:53:00,398 __main__ DEBUG: small component {'nuget-package', 'nuget'}
+2018-05-14 18:53:00,398 __main__ DEBUG: small component {'breakpoints', 'debugging', 'windbg'}
+2018-05-14 18:53:00,398 __main__ DEBUG: small component {'youtube-api', 'youtube-data-api', 'youtube'}
+2018-05-14 18:53:00,398 __main__ DEBUG: small component {'sed', 'bash', 'ksh', 'unix', 'zsh', 'shell', 'grep', 'awk', 'sh'}
+2018-05-14 18:53:00,398 __main__ DEBUG: small component {'powershell-v3.0', 'powershell-v2.0', 'powershell'}
+2018-05-14 18:53:00,398 __main__ DEBUG: small component {'cmd', 'windows', 'batch-file', 'dos', 'command-prompt'}
+2018-05-14 18:53:00,398 __main__ DEBUG: small component {'flex', 'flex4', 'flash-builder', 'flash', 'actionscript', 'flash-cs5', 'actionscript-2', 'actionscript-3', 'flex3', 'air'}
+2018-05-14 18:53:00,398 __main__ DEBUG: small component {'google-analytics', 'google-analytics-api', 'analytics', 'google-tag-manager'}
+2018-05-14 18:53:00,398 __main__ DEBUG: small component {'fortran', 'gfortran'}
+2018-05-14 18:53:00,398 __main__ DEBUG: small component {'sharepoint', 'sharepoint-2010', 'sharepoint-2007', 'sharepoint-2013'}
+2018-05-14 18:53:00,399 __main__ DEBUG: small component {'feed', 'rss'}
+2018-05-14 18:53:00,399 __main__ DEBUG: small component {'selenium-chromedriver', 'selenium-ide', 'webdriver', 'selenium', 'selenium-webdriver'}
+2018-05-14 18:53:00,399 __main__ DEBUG: small component {'c++builder', 'delphi', 'delphi-xe2', 'pascal', 'firemonkey', 'delphi-7', 'ado'}
+2018-05-14 18:53:00,399 __main__ DEBUG: small component {'tfs', 'tfs2010', 'tfsbuild', 'tfs2012', 'vsts', 'tfs2013', 'visual-studio-2012'}
+2018-05-14 18:53:00,399 __main__ DEBUG: small component {'video-processing', 'mp4', 'video'}
+2018-05-14 18:53:00,399 __main__ DEBUG: small component {'continuous-integration', 'jenkins-pipeline', 'jenkins', 'jenkins-plugins', 'hudson'}
+2018-05-14 18:53:00,399 __main__ DEBUG: small component {'database-design', 'data-modeling', 'database', 'rdbms', 'relational-database'}
+2018-05-14 18:53:00,399 __main__ DEBUG: small component {'ocr', 'tesseract'}
+2018-05-14 18:53:00,399 __main__ DEBUG: small component {'precision', 'floating-point'}
+2018-05-14 18:53:00,399 __main__ DEBUG: small component {'k-means', 'cluster-analysis'}
+2018-05-14 18:53:00,399 __main__ DEBUG: small component {'trigonometry', 'math'}
+2018-05-14 18:53:00,399 __main__ DEBUG: small component {'jmeter', 'load-testing'}
+2018-05-14 18:53:00,400 __main__ DEBUG: small component {'docker', 'docker-compose', 'dockerfile'}
+2018-05-14 18:53:00,400 __main__ DEBUG: small component {'elisp', 'org-mode', 'emacs'}
+2018-05-14 18:53:00,400 __main__ DEBUG: small component {'haskell', 'ghc', 'lazy-evaluation', 'monads'}
+2018-05-14 18:53:00,400 __main__ DEBUG: small component {'putty', 'ssh'}
+2018-05-14 18:53:00,400 __main__ DEBUG: small component {'rsa', 'aes', 'encryption'}
+2018-05-14 18:53:00,400 __main__ DEBUG: small component {'ssl-certificate', 'ssl', 'https'}
+2018-05-14 18:53:00,400 __main__ DEBUG: small component {'instagram', 'instagram-api'}
+2018-05-14 18:53:00,400 __main__ DEBUG: small component {'matlab-figure', 'octave', 'simulink', 'matlab'}
+2018-05-14 18:53:00,400 __main__ DEBUG: small component {'vagrant', 'virtualbox'}
+2018-05-14 18:53:00,400 __main__ DEBUG: small component {'sublimetext', 'sublimetext3', 'sublimetext2'}
+2018-05-14 18:53:00,400 __main__ DEBUG: small component {'graph-databases', 'cypher', 'neo4j'}
+2018-05-14 18:53:00,400 __main__ DEBUG: small component {'gmail', 'gmail-api'}
+2018-05-14 18:53:00,400 __main__ DEBUG: small component {'amqp', 'rabbitmq'}
+2018-05-14 18:53:00,401 __main__ DEBUG: small component {'internet-explorer', 'internet-explorer-11'}
+2018-05-14 18:53:00,401 __main__ DEBUG: small component {'installshield', 'wix', 'windows-installer'}
+2018-05-14 18:53:00,401 __main__ DEBUG: small component {'fpga', 'vhdl'}
+2018-05-14 18:53:00,401 __main__ DEBUG: small component {'colors', 'rgb'}
+2018-05-14 18:53:00,402 __main__ DEBUG: small component {'google-apps-script', 'google-spreadsheet-api', 'google-spreadsheet'}
+2018-05-14 18:53:00,402 __main__ DEBUG: small component {'ejabberd', 'xmpp'}
+2018-05-14 18:53:00,402 __main__ DEBUG: small component {'antlr4', 'antlr', 'parsing'}
+2018-05-14 18:53:00,402 __main__ DEBUG: small component {'wso2esb', 'wso2is', 'wso2', 'wso2-am'}
+2018-05-14 18:53:00,402 __main__ DEBUG: small component {'gnu-make', 'makefile'}
+2018-05-14 18:53:00,403 __main__ DEBUG: small component {'oop', 'encapsulation'}
+2018-05-14 18:53:00,403 __main__ DEBUG: small component {'system-verilog', 'verilog'}
+2018-05-14 18:53:00,403 __main__ DEBUG: small component {'vb.net', 'vb.net-2010'}
+2018-05-14 18:53:00,403 __main__ DEBUG: small component {'vim', 'vi'}
+2018-05-14 18:53:00,403 __main__ DEBUG: small component {'dropbox', 'dropbox-api'}
+2018-05-14 18:53:00,403 __main__ DEBUG: small component {'md5', 'hash'}
+2018-05-14 18:53:00,403 __main__ DEBUG: small component {'raspberry-pi', 'raspbian'}
+2018-05-14 18:53:00,404 __main__ DEBUG: small component {'google-app-engine', 'google-cloud-endpoints', 'google-cloud-datastore', 'google-cloud-sql'}
+2018-05-14 18:53:00,404 __main__ DEBUG: small component {'cookies', 'session-cookies'}
+2018-05-14 18:53:00,404 __main__ DEBUG: small component {'asp-classic', 'vbscript'}
+2018-05-14 18:53:00,404 __main__ DEBUG: small component {'elixir', 'phoenix-framework'}
+2018-05-14 18:53:00,404 __main__ DEBUG: small component {'csv', 'export-to-csv'}
+2018-05-14 18:53:00,404 __main__ DEBUG: small component {'lua', 'corona'}
+2018-05-14 18:53:00,404 __main__ DEBUG: small component {'performance', 'benchmarking'}
+2018-05-14 18:53:00,405 __main__ DEBUG: small component {'min', 'max'}
+2018-05-14 18:53:00,405 __main__ DEBUG: small component {'clojure', 'clojurescript'}
+2018-05-14 18:53:00,405 __main__ DEBUG: small component {'matrix-multiplication', 'matrix'}
+2018-05-14 18:53:00,405 __main__ DEBUG: small component {'installer', 'nsis'}
+2018-05-14 18:53:00,405 __main__ DEBUG: small component {'sap', 'abap'}
+2018-05-14 18:53:00,405 __main__ DEBUG: small component {'flutter', 'dart'}
+2018-05-14 18:53:00,405 __main__ DEBUG: small component {'grails', 'gorm'}
+2018-05-14 18:53:00,406 __main__ DEBUG: small component {'active-directory', 'ldap'}
+2018-05-14 18:54:53,323 __main__ DEBUG: [7.06524458e-03+0.j 7.76388997e-03+0.j 9.32052802e-03+0.j ...
+ 9.69742363e+01+0.j 1.34369029e+02+0.j 1.37216314e+02+0.j]
+2018-05-14 18:54:53,443 __main__ INFO: gen eigvecs finished
+D:\AllProgram\python36\lib\site-packages\sklearn\utils\validation.py:433: ComplexWarning: Casting complex values to real discards the imaginary part
+  array = np.array(array, dtype=dtype, order=order, copy=copy)
+D:\AllProgram\python36\lib\site-packages\sklearn\cluster\k_means_.py:896: RuntimeWarning: Explicit initial center position passed: performing only one init in k-means instead of n_init=10
+  return_n_iter=True)
+2018-05-14 18:54:54,449 matplotlib.backends._backend_tk INFO: Could not load matplotlib icon: can't use "pyimage10" as iconphoto: not a photo image
+2018-05-14 18:54:54,865 matplotlib.font_manager DEBUG: findfont: Matching :family=sans-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=10.0 to DejaVu Sans ('C:\\Users\\Administrator\\AppData\\Roaming\\Python\\Python36\\site-packages\\matplotlib\\mpl-data\\fonts\\ttf\\DejaVuSans.ttf') with score of 0.050000
+2018-05-14 18:54:54,937 matplotlib.font_manager DEBUG: findfont: Matching :family=sans-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=36.0 to DejaVu Sans ('C:\\Users\\Administrator\\AppData\\Roaming\\Python\\Python36\\site-packages\\matplotlib\\mpl-data\\fonts\\ttf\\DejaVuSans.ttf') with score of 0.050000
+
+fix duplicate tags
+2018-05-15 13:02:42,346 analysis.common INFO: index tag questions finished, questions: 275727, tags: 2834
+2018-05-15 13:02:43,888 analysis.common INFO: get all related couple finished, related: 208986
+2018-05-15 13:29:43,823 __main__ INFO: related weight filter finished, related: 3423
+2018-05-15 13:30:30,774 __main__ INFO: create graph finish, tags: 2204
+2018-05-15 13:30:30,775 __main__ DEBUG: small component {'tfs2012', 'vsts', 'visual-studio-2012', 'tfs2013', 'tfsbuild', 'tfs2010', 'tfs', 'visual-studio-2013'}
+2018-05-15 13:30:30,780 __main__ DEBUG: small component {'selenium-webdriver', 'webdriver', 'selenium-chromedriver', 'selenium', 'selenium-ide'}
+2018-05-15 13:30:30,780 __main__ DEBUG: small component {'corona', 'lua'}
+2018-05-15 13:30:30,781 __main__ DEBUG: small component {'saml', 'saml-2.0', 'single-sign-on'}
+2018-05-15 13:30:30,781 __main__ DEBUG: small component {'system-verilog', 'verilog'}
+2018-05-15 13:30:30,781 __main__ DEBUG: small component {'apache-kafka', 'apache-zookeeper'}
+2018-05-15 13:30:30,781 __main__ DEBUG: small component {'elisp', 'org-mode', 'emacs'}
+2018-05-15 13:30:30,781 __main__ DEBUG: small component {'jmeter', 'load-testing'}
+2018-05-15 13:30:30,781 __main__ DEBUG: small component {'breakpoints', 'windbg', 'gdb', 'debugging', 'remote-debugging'}
+2018-05-15 13:30:30,781 __main__ DEBUG: small component {'flex3', 'flash-cs5', 'flex4', 'actionscript-2', 'actionscript', 'actionscript-3', 'adobe', 'flash', 'flash-builder', 'air', 'flex'}
+2018-05-15 13:30:30,781 __main__ DEBUG: small component {'octave', 'matlab-figure', 'matlab', 'simulink'}
+2018-05-15 13:30:30,781 __main__ DEBUG: small component {'cuda', 'gpgpu', 'opencl', 'nvidia', 'gpu'}
+2018-05-15 13:30:30,781 __main__ DEBUG: small component {'http', 'http-headers', 'httpresponse'}
+2018-05-15 13:30:30,781 __main__ DEBUG: small component {'vim', 'vi'}
+2018-05-15 13:30:30,782 __main__ DEBUG: small component {'ghc', 'lazy-evaluation', 'haskell', 'monads'}
+2018-05-15 13:30:30,782 __main__ DEBUG: small component {'tesseract', 'ocr'}
+2018-05-15 13:30:30,782 __main__ DEBUG: small component {'nsis', 'windows-installer', 'installshield', 'installer', 'wix'}
+2018-05-15 13:30:30,782 __main__ DEBUG: small component {'dropbox-api', 'dropbox'}
+2018-05-15 13:30:30,782 __main__ DEBUG: small component {'google-docs', 'google-spreadsheet', 'google-apps-script', 'google-spreadsheet-api'}
+2018-05-15 13:30:30,782 __main__ DEBUG: small component {'wso2', 'wso2-am', 'wso2is', 'wso2esb'}
+2018-05-15 13:30:30,782 __main__ DEBUG: small component {'lisp', 'common-lisp', 'scheme', 'racket'}
+2018-05-15 13:30:30,782 __main__ DEBUG: small component {'sftp', 'putty', 'ssh'}
+2018-05-15 13:30:30,782 __main__ DEBUG: small component {'gnu-make', 'makefile'}
+2018-05-15 13:30:30,782 __main__ DEBUG: small component {'jenkins-plugins', 'continuous-integration', 'jenkins-pipeline', 'jenkins', 'hudson'}
+2018-05-15 13:30:30,782 __main__ DEBUG: small component {'youtube', 'youtube-data-api', 'youtube-api'}
+2018-05-15 13:30:30,782 __main__ DEBUG: small component {'icalendar', 'calendar'}
+2018-05-15 13:30:30,782 __main__ DEBUG: small component {'ffmpeg', 'h.264', 'video', 'mp4', 'video-processing'}
+2018-05-15 13:30:30,783 __main__ DEBUG: small component {'puppet', 'virtualbox', 'vagrant'}
+2018-05-15 13:30:30,783 __main__ DEBUG: small component {'performance-testing', 'performance', 'benchmarking'}
+2018-05-15 13:30:30,783 __main__ DEBUG: small component {'sublimetext3', 'sublimetext', 'sublimetext2'}
+2018-05-15 13:30:30,783 __main__ DEBUG: small component {'amqp', 'rabbitmq'}
+2018-05-15 13:30:30,783 __main__ DEBUG: small component {'build-automation', 'build-process'}
+2018-05-15 13:30:30,783 __main__ DEBUG: small component {'sharepoint-2013', 'sharepoint-2010', 'sharepoint', 'sharepoint-2007'}
+2018-05-15 13:30:30,783 __main__ DEBUG: small component {'cypher', 'neo4j', 'graph-databases'}
+2018-05-15 13:30:30,783 __main__ DEBUG: small component {'powershell', 'powershell-v2.0', 'powershell-v3.0'}
+2018-05-15 13:30:30,783 __main__ DEBUG: small component {'abap', 'sap'}
+2018-05-15 13:30:30,783 __main__ DEBUG: small component {'google-oauth', 'oauth-2.0', 'google-api', 'google-calendar'}
+2018-05-15 13:30:30,783 __main__ DEBUG: small component {'rss', 'feed'}
+2018-05-15 13:30:30,783 __main__ DEBUG: small component {'raspberry-pi', 'raspbian'}
+2018-05-15 13:30:30,783 __main__ DEBUG: small component {'gorm', 'grails'}
+2018-05-15 13:30:30,784 __main__ DEBUG: small component {'floating-point', 'precision'}
+2018-05-15 13:30:30,784 __main__ DEBUG: small component {'vbscript', 'asp-classic'}
+2018-05-15 13:30:30,784 __main__ DEBUG: small component {'microsoft-graph', 'office365'}
+2018-05-15 13:30:30,784 __main__ DEBUG: small component {'google-compute-engine', 'google-cloud-platform'}
+2018-05-15 13:30:30,784 __main__ DEBUG: small component {'clojure', 'clojurescript'}
+2018-05-15 13:30:30,784 __main__ DEBUG: small component {'ldap', 'active-directory'}
+2018-05-15 13:30:30,784 __main__ DEBUG: small component {'instagram', 'instagram-api'}
+2018-05-15 13:30:30,784 __main__ DEBUG: small component {'min', 'max'}
+2018-05-15 13:30:30,784 __main__ DEBUG: small component {'phoenix-framework', 'elixir'}
+2018-05-15 13:30:30,785 __main__ DEBUG: small component {'hash', 'md5'}
+2018-05-15 13:30:30,785 __main__ DEBUG: small component {'command-line', 'command-line-arguments'}
+2018-05-15 13:30:30,785 __main__ DEBUG: small component {'flutter', 'dart'}
+2018-05-15 13:30:30,785 __main__ DEBUG: small component {'gfortran', 'fortran'}
+2018-05-15 13:30:30,785 __main__ DEBUG: small component {'cassandra', 'datastax'}
+2018-05-15 13:30:30,785 __main__ DEBUG: small component {'diagram', 'uml'}
+2018-05-15 13:30:30,785 __main__ DEBUG: small component {'encapsulation', 'oop'}
+2018-05-15 13:30:30,785 __main__ DEBUG: small component {'colors', 'rgb'}
+2018-05-15 13:30:30,785 __main__ DEBUG: small component {'fpga', 'vhdl'}
+2018-05-15 13:33:26,391 __main__ INFO: gen eigvecs finished

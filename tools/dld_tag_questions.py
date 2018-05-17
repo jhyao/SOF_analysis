@@ -4,3 +4,4 @@ if __name__ == '__main__':
     for i, tag in enumerate(TagsCDN.get_tags(10000)):
         print(f'count {i}')
         QuestionsCDN.get_tag_questions(tag, save=False, from_db=False, min_num=100)
+    # QuestionsCDN.get_tag_questions('map', save=False, from_db=False, min_num=100)

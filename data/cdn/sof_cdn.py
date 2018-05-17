@@ -47,7 +47,7 @@ class TagsCDN(CDN):
 
     @classmethod
     def set_tag_category(cls, tag, c, to_db=True):
-        is_core = c.pop('is_core', False)
+        is_core = c.get('is_core', False)
         cls.cache.set_tag_category(tag, c)
         if to_db:
             TagClf.insert_or_update(TagClf.tag == tag, tag=tag, clf=json.dumps(c), is_core=is_core)
@@ -62,6 +62,16 @@ class TagsCDN(CDN):
     def get_tags(cls, limit=None):
         # get tags order by question count
         return [tag.name for tag in Tag.select(Tag.name).order_by(-Tag.count).limit(limit)]
+
+    @classmethod
+    def clear_tag_category(cls):
+        cls.cache.clear()
+        TagClf.truncate_table()
+
+    @classmethod
+    def del_tag_category(cls, tag):
+        cls.cache.hdel(tag)
+        TagClf.delete().where(TagClf.tag==tag).execute()
 
 
 class QuestionsCDN(CDN):
@@ -217,5 +227,4 @@ class TagRelatedCDN(CDN):
     @classmethod
     def clear_cache(cls):
         cls.cache.clear()
-
 

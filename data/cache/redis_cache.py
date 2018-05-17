@@ -69,3 +69,7 @@ class Cache:
                 return ast.literal_eval(item)
             except:
                 return item
+
+    @classmethod
+    def hdel(cls, name):
+        cls.redis.hdel(cls.key, name)

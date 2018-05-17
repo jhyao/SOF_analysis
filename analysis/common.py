@@ -134,17 +134,17 @@ def save_step_data(data, step, transfer_item=None, save=True, msg=None, file_pat
     file.close()
 
 
-def save_graph(graph, step, clf=None, save=True, msg=None, fig_size=20, node_size=5,
+def save_graph(graph, step, pos=None, clf=None, save=True, msg=None, fig_size=30, node_size=5,
                edge_color='#acacac', edge_cm='Greys', clf_cm='gist_rainbow', font_size=12):
     if not save:
         return
     file_path = create_step_file_path(step)
-    pos = nx.spring_layout(graph)
+    pos = pos or nx.spring_layout(graph)
     fig = plt.figure(figsize=(fig_size, fig_size))
     if msg:
         fig.suptitle(msg)
     if clf is None:
-        nx.draw(graph, pos, with_labels=True, font_weight='bold', node_size=node_size)
+        nx.draw(graph, pos, with_labels=True, font_weight='bold', node_size=node_size, node_color='black')
     else:
         nx.draw_networkx_edges(graph, pos, edge_color=edge_color, edge_cmap=plt.cm.get_cmap(edge_cm))
         clf_colors_mapper = plt.cm.ScalarMappable(matplotlib.colors.Normalize(0, len(clf.keys()) - 1),
@@ -152,6 +152,7 @@ def save_graph(graph, step, clf=None, save=True, msg=None, fig_size=20, node_siz
         for i, c in enumerate(clf.keys()):
             color = clf_colors_mapper.to_rgba(i)
             # logger.debug(color)
-            nx.draw_networkx_nodes(graph, pos, nodelist=clf[c], node_size=node_size, node_color=color)
-            nx.draw_networkx_labels(graph, pos, labels=dict((n, n) for n in clf[c]), font_size=font_size, font_color=color)
+            nx.draw_networkx_nodes(graph, pos, nodelist=clf[c], node_size=3*node_size, node_color=color)
+            # nx.draw_networkx_labels(graph, pos, labels=dict((n, n) for n in clf[c]), font_size=font_size, font_color=color)
+            nx.draw_networkx_labels(graph, pos, labels=dict((n, n) for n in clf.keys() if n != 'others'), font_size=3*font_size, font_color='black')
     plt.savefig(file_path)

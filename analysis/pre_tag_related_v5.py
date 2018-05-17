@@ -111,5 +111,6 @@ if __name__ == '__main__':
     min_question_num = 100
     weight_func = WeightFuncs.inter_divide_min
     msg = f'min_question_num={min_question_num}, weight_func={weight_func.__name__}'
+    TagRelatedCDN.clear_cache()
     tag_related_pretreatment(min_question_num=min_question_num, weight_func=weight_func, msg=msg)
     # print(create_tag('xxxxxxx'))
