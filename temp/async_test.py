@@ -1,12 +1,16 @@
 import asyncio
 
-async def task(n):
-    print(f'task{n}...')
-    await asyncio.sleep(n)
-    print(f'task{n} end')
+async def task():
+    print(f'task...')
+    await asyncio.sleep(1)
+    return [1]
 
 async def main(loop):
-    asyncio.ensure_future(task(1))
+    task_list = [task() for i in range(5)]
+    tasks = await asyncio.wait(task_list)
+    result = [t.result() for t in tasks[0]]
+    print(result)
+    return result
 
 
 

@@ -97,7 +97,7 @@ class QuestionsCDN(CDN):
         if save:
             await cls.model.insert_many_execute_async(page_data)
             await QuestionTags.insert_many_execute_async(question_tags)
-        return len(page_data)
+        return question_tags
 
     @classmethod
     def get_tag_questions(cls, tag, save=True, from_cache=True, from_db=True, from_api=True, min_num=50):
@@ -178,7 +178,7 @@ class UserTagsCDN(CDN):
     cache = UserTagsCache
 
     @classmethod
-    def get_user_tags(cls, user_id, save=True, from_cache=True, from_db=True, from_api=True):
+    def get_user_tags(cls, user_id, save=True, from_cache=True, from_db=True, from_api=True, max_page=None):
         if from_cache:
             tags = cls.cache.get_user_tags(user_id)
             logger.debug(f'get user ({user_id}) tags from cache')
@@ -191,7 +191,7 @@ class UserTagsCDN(CDN):
                 cls.cache.set_user_tags(user_id, tags)
         if not tags and from_api:
             logger.debug(f'get user ({user_id}) tags from api')
-            tags = cls.dld_pages(save=save, user_ids=[user_id])
+            tags = cls.dld_pages_parallel(parallel_num=5, save=save, user_ids=[user_id], max_page=max_page)
             cls.cache.set_user_tags(user_id, tags)
         return tags
 

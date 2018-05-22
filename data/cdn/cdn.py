@@ -155,8 +155,17 @@ class CDN(object):
     async def dld_pages_async_parallel(cls, parallel_num=5, save=True, **kwargs):
         pager = cls.Pager(kwargs.pop('page', 1), kwargs.pop('max_page', None))
         task_list = [cls.dld_pages_async(pager, save=save, **kwargs) for i in range(parallel_num)]
-        await asyncio.wait(task_list)
+        futures = await asyncio.wait(task_list)
+        result = []
+        for f in futures[0]:
+            result.extend(f.result())
+        return result
 
+    @classmethod
+    def dld_pages_parallel(cls, parallel_num=5, save=True, **kwargs):
+        loop = asyncio.get_event_loop()
+        result = loop.run_until_complete(cls.dld_pages_async_parallel(parallel_num=parallel_num, save=save, **kwargs))
+        return result
 
 
 

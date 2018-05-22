@@ -62,13 +62,15 @@ class TagClassifier(object):
         if self.update:
             category = self.analysis_clf(tag)
             logger.info(f'{category}')
-            TagsCDN.set_tag_category(tag, category)
+            if category['category'] != 'invalid' or self.from_api:
+                TagsCDN.set_tag_category(tag, category)
         else:
             category = TagsCDN.get_tag_category(tag, from_db=self.save_db)
             if not category:
                 category = self.analysis_clf(tag)
                 logger.info(f'{category}')
-                TagsCDN.set_tag_category(tag, category, to_db=self.save_db)
+                if category['category'] != 'invalid' or self.from_api:
+                    TagsCDN.set_tag_category(tag, category, to_db=self.save_db)
         return category
 
     def analysis_clf(self, tag):
