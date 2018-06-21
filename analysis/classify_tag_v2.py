@@ -62,8 +62,8 @@ class TagClassifier(object):
         if self.update:
             category = self.analysis_clf(tag)
             logger.info(f'{category}')
-            if category['category'] != 'invalid' or self.from_api:
-                TagsCDN.set_tag_category(tag, category)
+            if category['category'] != 'invalid':
+                TagsCDN.set_tag_category(tag, category, to_db=self.save_db)
         else:
             category = TagsCDN.get_tag_category(tag, from_db=self.save_db)
             if not category:
@@ -99,26 +99,47 @@ class TagClassifier(object):
     @staticmethod
     def detect_category(weights):
         # 1st quartile (25%)
-        Q1 = np.percentile(list(weights.values()), 25)
-        # 3rd quartile (75%)
-        Q3 = np.percentile(list(weights.values()), 75)
-        # Interquartile range (IQR)
-        IQR = Q3 - Q1
-        # outlier step
-        outlier_step = 1.5 * IQR
-        # Determine a list of indices of outliers for feature col
-        related_weights = dict([(tag, weights[tag]) for tag in weights if weights[tag] > IQR + outlier_step])
-        if related_weights:
-            category = max(related_weights, key=lambda item: related_weights[item])
+        values = list(filter(lambda w: w > 0, weights.values()))
+        if not values:
+            return 'others'
         else:
-            category = 'others'
-        return category
+            return max(weights, key=lambda item: weights[item])
+        # Q1 = np.percentile(values, 25)
+        # # 3rd quartile (75%)
+        # Q3 = np.percentile(values, 75)
+        # # Interquartile range (IQR)
+        # IQR = Q3 - Q1
+        # # outlier step
+        # outline = Q3 + 1.5 * IQR
+        # # Determine a list of indices of outliers for feature col
+        # related_weights = dict([(tag, weights[tag]) for tag in weights if weights[tag] > outline])
+        # if len(related_weights) == 1:
+        #     category = list(related_weights.keys())[0]
+        # else:
+        #     category = 'others'
+
+        # return category
+
+    def core_tags_check(self):
+        count = 0
+        for tag in self.core_tag_index:
+            weights = self.classify_tag(tag)['weights']
+            category = self.detect_category(weights)
+            if category != self.core_tag_index[tag]:
+                print(f'{tag} {self.core_tag_index[tag]} {category}')
+                count += 1
+        print(count)
 
 
 if __name__ == '__main__':
-    clifer = TagClassifier(from_db=False, from_api=True, update=True, min_weight=0.1, save_db=False, related_cache=False)
-    # tags = Tag.select().where(Tag.count >= 100).order_by(-Tag.count).execute()
-    # for i, tag in enumerate(tags):
-    #     logger.info(f'count {i}')
-    #     c = clifer.classify_tag(tag.name)
-    clifer.classify_tag('forum')
+    clifer = TagClassifier(from_db=False, from_api=False, update=True, min_weight=0.1, save_db=False, related_cache=False)
+    TagsCDN.clear_tag_category()
+    tags = Tag.select().where(Tag.count >= 100).order_by(-Tag.count).execute()
+    for i, tag in enumerate(tags):
+        logger.info(f'count {i}')
+        c = clifer.classify_tag(tag.name)
+    clifer.classify_tag('sdf')
+    # clifer.core_tags_check()
+    # weights = clifer.weights_to_groups('c++')
+    # category = clifer.detect_category(weights)
+    # print(category)

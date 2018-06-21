@@ -6,7 +6,7 @@ def count_line(file_path):
     code = 0
     blank = 0
     note = 0
-    for line in open(file_path, 'r'):
+    for line in open(file_path, 'r', encoding='utf-8'):
         line = line.strip()
         if line:
             if line.startswith('#'):
@@ -37,4 +37,4 @@ def loc(path, pattern):
     return loc_count
 
 if __name__ == '__main__':
-    loc(r'E:\SOF', '.*\.py$')
+    loc(r'E:\SOF', '.*\.html$')

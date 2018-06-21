@@ -1,4 +1,3 @@
 # SOF_analysis
-data module: data  
-analysis module in analysis folder. Latest version in use.  
-website module in website folder  
+Main parts: data, analysis, website  
+Create config_my.py in data/config, overwrite config to set your database and redis.
