@@ -6,4 +6,4 @@ for t in tags:
     c = tags[t]
     if c['category'] == 'invalid':
         print(f'delete {t}')
-        # TagsCDN.cache.hdel(t)
+        TagsCDN.del_tag_category(t)

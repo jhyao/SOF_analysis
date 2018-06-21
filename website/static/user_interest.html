@@ -33,9 +33,14 @@
             question_score.push({name: item, value: interest[item][1]});
             answer_score.push({name: item, value: interest[item][3]});
         });
+
+        var title = 'questions & answers interest';
+        if (cls.length === 0){
+            title = 'no interest found';
+        }
         var option = {
             title: {
-                text: 'user interest',
+                text: title,
                 x: 'center'
             },
             tooltip: {
@@ -70,7 +75,7 @@
                     roseType: 'radius',
                     label: {
                         normal: {
-                            show: false
+                            show: true
                         },
                         emphasis: {
                             show: true
@@ -78,7 +83,7 @@
                     },
                     lableLine: {
                         normal: {
-                            show: false
+                            show: true
                         },
                         emphasis: {
                             show: true
@@ -94,7 +99,7 @@
                     roseType: 'radius',
                     label: {
                         normal: {
-                            show: false
+                            show: true
                         },
                         emphasis: {
                             show: true
@@ -102,7 +107,7 @@
                     },
                     lableLine: {
                         normal: {
-                            show: false
+                            show: true
                         },
                         emphasis: {
                             show: true
@@ -124,6 +129,15 @@
             show_cahrts(data);
         });
     }
+    $(function () {
+        $('.search-input').keypress(function (e) {
+            key = e.which;
+            if (key == 13) {
+                $('.search-button').click();
+                return false;
+            }
+        })
+    });
 </script>
 
 </body>

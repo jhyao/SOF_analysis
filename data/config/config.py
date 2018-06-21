@@ -61,7 +61,7 @@ CONFIG = {
 try:
     from . import config_my
     for key in CONFIG:
-        CONFIG[key].update(**config_my.config.get(key, {}))
+        CONFIG[key].update(**config_my.CONFIG.get(key, {}))
 except ImportError:
     raise Exception('No config found')
 

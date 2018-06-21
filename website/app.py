@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, send_from_directory
 from data.cdn.sof_cdn import TagsCDN, CoreTagClfCache
-from analysis.classify_tag_v1 import TagClassifier
+from analysis.classify_tag_v2 import TagClassifier
 import analysis.user_interest_analysis as user_analysis
 
 import logging

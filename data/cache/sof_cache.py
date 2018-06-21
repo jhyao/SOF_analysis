@@ -31,7 +31,8 @@ class TagQuestionsCache(Cache):
 
 
 class TagsCache(Cache):
-    key = Keys.TAG_CATEGORY
+    # key = Keys.TAG_CATEGORY
+    key = 'tag_clf_v2'
     isjson = True
 
     @classmethod
